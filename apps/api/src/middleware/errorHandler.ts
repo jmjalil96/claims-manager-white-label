@@ -12,7 +12,8 @@ interface ErrorResponse {
 
 export function errorHandler(err: Error, req: Request, res: Response, _next: NextFunction) {
   const reqId = req.id
-  const requestId = typeof reqId === 'string' ? reqId : typeof reqId === 'number' ? String(reqId) : 'unknown'
+  const requestId =
+    typeof reqId === 'string' ? reqId : typeof reqId === 'number' ? String(reqId) : 'unknown'
   const isDev = process.env.NODE_ENV !== 'production'
 
   const isAppError = err instanceof AppError

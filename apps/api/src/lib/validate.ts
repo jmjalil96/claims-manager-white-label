@@ -12,7 +12,7 @@ export function validate<T extends z.ZodSchema>(schema: T) {
 
     if (!result.success) {
       const errors = result.error.flatten()
-      throw AppError.badRequest('Validation error', errors)
+      throw AppError.badRequest('Error de validación', errors)
     }
 
     req.validated = result.data as z.infer<T>

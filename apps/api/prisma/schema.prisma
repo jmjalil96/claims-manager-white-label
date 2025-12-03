@@ -391,6 +391,7 @@ model Claim {
 
   returnReason       String?
   cancellationReason String?
+  pendingReason      String?
 
   createdById String
   createdBy   User   @relation("ClaimCreator", fields: [createdById], references: [id])

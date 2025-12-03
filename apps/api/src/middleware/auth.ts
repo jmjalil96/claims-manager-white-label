@@ -3,21 +3,24 @@ import { auth } from '../lib/auth.js'
 import { AppError } from '../lib/errors.js'
 import { fromNodeHeaders } from 'better-auth/node'
 import { db } from '../lib/db.js'
+import { isInternalRole } from '../lib/constants.js'
 
-// Internal roles always bypass requireRole checks
-const INTERNAL_ROLES = ['superadmin', 'claims_admin', 'claims_employee', 'operations_employee']
+/**
+ * Authenticated user context available on req.user
+ */
+export interface AuthUser {
+  id: string
+  email: string
+  name: string | null
+  role: string | null
+}
 
 // Extend Express Request
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
-      user?: {
-        id: string
-        email: string
-        name: string | null
-        role: string | null
-      }
+      user?: AuthUser
       session?: typeof auth.$Infer.Session.session
     }
   }
@@ -74,7 +77,7 @@ export function requireRole(...allowedRoles: string[]) {
     const userRole = result.user.role
 
     // Internal roles (employees) always pass
-    if (userRole && INTERNAL_ROLES.includes(userRole)) {
+    if (isInternalRole(userRole)) {
       req.user = result.user
       req.session = result.session
       return next()
@@ -89,6 +92,40 @@ export function requireRole(...allowedRoles: string[]) {
     req.session = result.session
     next()
   }
+}
+
+// Require internal role (broker employees only)
+export async function requireInternalRole(req: Request, _res: Response, next: NextFunction) {
+  const result = await getAuthenticatedUser(req)
+
+  if (!result) {
+    throw AppError.unauthorized()
+  }
+
+  if (!isInternalRole(result.user.role)) {
+    throw AppError.forbidden('Acceso restringido a empleados internos')
+  }
+
+  req.user = result.user
+  req.session = result.session
+  next()
+}
+
+// Require superadmin role only
+export async function requireSuperAdmin(req: Request, _res: Response, next: NextFunction) {
+  const result = await getAuthenticatedUser(req)
+
+  if (!result) {
+    throw AppError.unauthorized()
+  }
+
+  if (result.user.role !== 'superadmin') {
+    throw AppError.forbidden('Acceso restringido a superadmin')
+  }
+
+  req.user = result.user
+  req.session = result.session
+  next()
 }
 
 // Require access to a specific client (via UserClient)

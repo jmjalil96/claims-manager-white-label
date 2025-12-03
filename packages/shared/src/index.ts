@@ -1,0 +1,12 @@
+/**
+ * @claims/shared - Shared types and enums for the Claims Manager monorepo
+ */
+
+// Enums
+export * from './enums/index.js'
+
+// Common types
+export * from './common/index.js'
+
+// Feature DTOs
+export * from './claims/index.js'

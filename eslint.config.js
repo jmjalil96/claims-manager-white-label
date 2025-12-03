@@ -10,12 +10,30 @@ export default tseslint.config(
   ...tseslint.configs.recommendedTypeChecked,
   prettier,
   {
-    ignores: ['**/dist/', '**/node_modules/', '**/build/'],
+    ignores: ['**/dist/', '**/node_modules/', '**/build/', '**/coverage/'],
   },
   // Config files - disable type-checked rules (not covered by tsconfigs)
   {
     files: ['*.js', '*.mjs', '*.cjs', '**/*.config.ts', '**/prisma/**/*.ts'],
     ...tseslint.configs.disableTypeChecked,
+  },
+  // Shared package
+  {
+    files: ['packages/shared/**/*.ts'],
+    languageOptions: {
+      globals: globals.node,
+      parserOptions: {
+        project: ['./packages/shared/tsconfig.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
+      '@typescript-eslint/consistent-type-imports': 'error',
+    },
   },
   // Backend (Node) - excluding config files
   {
@@ -65,5 +83,5 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },
-  },
+  }
 )
