@@ -10,6 +10,7 @@ import { requestId } from './middleware/requestId.js'
 import { notFound } from './middleware/notFound.js'
 import { errorHandler } from './middleware/errorHandler.js'
 import { router } from './routes/index.js'
+import { devRouter } from './dev/index.js'
 
 const app = express()
 
@@ -38,6 +39,11 @@ app.use(express.json({ limit: '10kb' }))
 
 // BetterAuth handler with stricter rate limit (Express 5 wildcard syntax)
 app.all('/api/auth/{*splat}', authRateLimiter, toNodeHandler(auth))
+
+// Dev routes (only in non-production)
+if (process.env.NODE_ENV !== 'production') {
+  app.use('/dev', devRouter)
+}
 
 // Routes
 app.use(router)

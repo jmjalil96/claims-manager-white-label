@@ -10,9 +10,9 @@ function ClaimsListComponent() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Claims</h1>
-        <Button asChild>
-          <Link to="/claims/new">New Claim</Link>
-        </Button>
+        <Link to="/claims/new">
+          <Button>New Claim</Button>
+        </Link>
       </div>
       <p className="text-muted-foreground">Claims list will appear here. No claims yet.</p>
     </div>

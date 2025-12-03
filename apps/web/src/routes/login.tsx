@@ -1,10 +1,16 @@
 import { useState } from 'react'
-import type { FormEvent } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Lock, Mail, ArrowRight } from 'lucide-react'
 import { signIn } from '@/lib/auth-client'
+import { loginSchema, type LoginInput } from '@/features/auth/schemas'
+import { AuthLayout } from '@/components/layouts/auth-layout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { PasswordInput } from '@/components/ui/password-input'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Alert } from '@/components/ui/alert'
 
 export const Route = createFileRoute('/login')({
   component: LoginComponent,
@@ -12,71 +18,134 @@ export const Route = createFileRoute('/login')({
 
 function LoginComponent() {
   const navigate = useNavigate()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+  const form = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  })
+
+  const onSubmit = async (data: LoginInput) => {
     setError('')
 
-    const result = await signIn.email({ email, password })
+    const result = await signIn.email({
+      email: data.email,
+      password: data.password,
+    })
 
     if (result.error) {
       setError(result.error.message ?? 'Sign in failed')
-      setLoading(false)
     } else {
       void navigate({ to: '/dashboard' })
     }
   }
 
+  const isLoading = form.formState.isSubmitting
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="w-full max-w-md space-y-6 p-8">
-        <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-bold">Claims Manager</h1>
-          <p className="text-muted-foreground">Sign in to your account</p>
+    <AuthLayout>
+      <div className="w-full max-w-sm space-y-8">
+        {/* Header */}
+        <div className="space-y-6">
+          <span className="text-2xl font-bold tracking-tight text-teal-600">ClaimsManager360</span>
+          <div className="space-y-2">
+            <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+              Bienvenido
+            </h1>
+            <p className="text-base text-slate-500">Ingresa tus credenciales para continuar.</p>
+          </div>
         </div>
 
-        <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
-          {error && (
-            <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
-          )}
+        {/* Form */}
+        <form onSubmit={(e) => void form.handleSubmit(onSubmit)(e)} className="space-y-6">
+          {error && <Alert>{error}</Alert>}
 
+          {/* Email Input */}
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <label htmlFor="email" className="text-sm font-medium text-slate-700">
+              Correo electrónico
+            </label>
             <Input
               id="email"
               type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={loading}
+              autoComplete="email"
+              placeholder="name@company.com"
+              disabled={isLoading}
+              leftIcon={<Mail size={18} />}
+              error={!!form.formState.errors.email}
+              aria-describedby={form.formState.errors.email ? 'email-error' : undefined}
+              {...form.register('email')}
             />
+            {form.formState.errors.email && (
+              <p id="email-error" className="text-xs text-red-600">
+                {form.formState.errors.email.message}
+              </p>
+            )}
           </div>
 
+          {/* Password Input */}
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
+            <label htmlFor="password" className="text-sm font-medium text-slate-700">
+              Contraseña
+            </label>
+            <PasswordInput
               id="password"
-              type="password"
+              autoComplete="current-password"
               placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              disabled={loading}
-              minLength={8}
+              disabled={isLoading}
+              leftIcon={<Lock size={18} />}
+              error={!!form.formState.errors.password}
+              aria-describedby={form.formState.errors.password ? 'password-error' : undefined}
+              {...form.register('password')}
             />
+            {form.formState.errors.password && (
+              <p id="password-error" className="text-xs text-red-600">
+                {form.formState.errors.password.message}
+              </p>
+            )}
           </div>
 
-          <Button type="submit" className="w-full" size="lg" disabled={loading}>
-            {loading ? 'Signing in...' : 'Sign in'}
+          {/* Remember Me & Forgot Password */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Checkbox id="remember-me" />
+              <label
+                htmlFor="remember-me"
+                className="cursor-pointer select-none text-sm font-normal text-slate-600"
+              >
+                Recordarme
+              </label>
+            </div>
+            <a
+              href="#"
+              className="text-sm font-medium text-teal-600 transition-colors hover:text-teal-500"
+            >
+              ¿Olvidaste tu contraseña?
+            </a>
+          </div>
+
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            loading={isLoading}
+            rightIcon={<ArrowRight size={18} />}
+            className="w-full"
+          >
+            Ingresar
           </Button>
         </form>
+
+        {/* Footer */}
+        <p className="text-center text-sm text-slate-500">
+          ¿No tienes cuenta?{' '}
+          <a href="#" className="font-medium text-teal-600 transition-colors hover:text-teal-500">
+            Solicitar acceso
+          </a>
+        </p>
       </div>
-    </div>
+    </AuthLayout>
   )
 }
