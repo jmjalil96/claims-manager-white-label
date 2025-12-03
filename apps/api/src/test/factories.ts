@@ -198,6 +198,7 @@ export async function createAuditLog(
     clientId?: string
     changes?: Prisma.InputJsonValue
     metadata?: Prisma.InputJsonValue
+    createdAt?: Date
   } = {}
 ): Promise<AuditLog> {
   return db.auditLog.create({
@@ -209,6 +210,7 @@ export async function createAuditLog(
       clientId: opts.clientId ?? null,
       changes: opts.changes,
       metadata: opts.metadata,
+      createdAt: opts.createdAt,
     },
   })
 }

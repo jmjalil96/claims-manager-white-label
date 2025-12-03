@@ -240,9 +240,19 @@ describe('Get Claim Audit Response Format', () => {
     const aff = await createAffiliate(client.id)
     const claim = await createClaim(client.id, aff.id, { createdById: admin.id })
 
-    await createAuditLog('Claim', claim.id, admin.id, { action: 'CREATE' })
-    await createAuditLog('Claim', claim.id, admin.id, { action: 'UPDATE' })
-    await createAuditLog('Claim', claim.id, admin.id, { action: 'STATUS_CHANGE' })
+    const now = new Date()
+    await createAuditLog('Claim', claim.id, admin.id, {
+      action: 'CREATE',
+      createdAt: new Date(now.getTime() - 2000),
+    })
+    await createAuditLog('Claim', claim.id, admin.id, {
+      action: 'UPDATE',
+      createdAt: new Date(now.getTime() - 1000),
+    })
+    await createAuditLog('Claim', claim.id, admin.id, {
+      action: 'STATUS_CHANGE',
+      createdAt: now,
+    })
 
     const result = await getClaimAudit(claim.id, defaultQuery, authUser(admin))
 
