@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, Navigate } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
 import { useSession, signOut } from '@/lib/auth-client'
 import { Button } from '@/components/ui/button'
+import { PageLoader } from '@/components/ui/page-loader'
 
 export const Route = createFileRoute('/_authenticated')({
   component: AuthenticatedLayout,
@@ -11,15 +12,11 @@ function AuthenticatedLayout() {
   const { data: session, isPending } = useSession()
 
   if (isPending) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
-    )
+    return <PageLoader />
   }
 
   if (!session) {
-    return <Navigate to="/login" />
+    return <Navigate to="/login" search={{ redirect: window.location.pathname }} />
   }
 
   return (

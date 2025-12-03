@@ -20,6 +20,12 @@ export const env = {
   R2_SECRET_ACCESS_KEY: process.env.R2_SECRET_ACCESS_KEY,
   R2_BUCKET_NAME: process.env.R2_BUCKET_NAME || 'claims-manager',
   R2_PUBLIC_URL: process.env.R2_PUBLIC_URL,
+
+  /** Email (Resend for production, Inbucket for dev) */
+  RESEND_API_KEY: process.env.RESEND_API_KEY,
+  EMAIL_FROM: process.env.EMAIL_FROM || 'noreply@claims.local',
+  SMTP_HOST: process.env.SMTP_HOST || 'localhost',
+  SMTP_PORT: process.env.SMTP_PORT || '2525',
 } as const
 
 // Development warning for missing claim number salt

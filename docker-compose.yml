@@ -17,5 +17,16 @@ services:
       timeout: 5s
       retries: 5
 
+  inbucket:
+    image: inbucket/inbucket:latest
+    container_name: claims-inbucket
+    restart: unless-stopped
+    ports:
+      - '2525:2500' # SMTP (mapped to 2525 to avoid conflicts)
+      - '9001:9000' # Web UI (mapped to 9001 to avoid conflicts)
+      - '1101:1100' # POP3 (mapped to 1101 to avoid conflicts)
+    environment:
+      INBUCKET_LOGLEVEL: info
+
 volumes:
   postgres_data:
