@@ -1,7 +1,7 @@
 import { Component, type ReactNode } from 'react'
 import { Link } from '@tanstack/react-router'
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '../primitives/button'
 
 interface Props {
   children: ReactNode

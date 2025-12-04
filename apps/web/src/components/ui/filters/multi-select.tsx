@@ -1,8 +1,8 @@
 import * as React from 'react'
 import * as Popover from '@radix-ui/react-popover'
 import { ChevronDown } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Button } from '../primitives/button'
+import { Checkbox } from '../primitives/checkbox'
 import { cn } from '@/lib/utils'
 
 export interface MultiSelectOption {

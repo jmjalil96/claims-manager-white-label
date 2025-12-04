@@ -1,14 +1,14 @@
 import { useState, useMemo } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { PageHeader } from '@/components/ui/page-header'
-import { Button } from '@/components/ui/button'
 import {
+  PageHeader,
+  Button,
   FilterBar,
   SearchInput,
   MultiSelect,
   DateRangePicker,
   type FilterChip,
-} from '@/components/ui/filters'
+} from '@/components/ui'
 import {
   useReactTable,
   getCoreRowModel,
@@ -26,7 +26,7 @@ import {
   createViewAction,
   createEditAction,
   createDeleteAction,
-} from '@/components/ui/data-table'
+} from '@/components/ui'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/_authenticated/test')({

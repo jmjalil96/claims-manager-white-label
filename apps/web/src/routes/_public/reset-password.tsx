@@ -5,13 +5,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Lock, ArrowRight } from 'lucide-react'
 import { z } from 'zod'
 import { resetPassword } from '@/lib/auth-client'
-import { resetPasswordSchema, type ResetPasswordInput } from '@/features/auth/schemas'
+import { resetPasswordSchema, type ResetPasswordInput } from '@/features/auth'
 import { toast } from '@/lib/toast'
 import { AuthLayout } from '@/components/layouts/auth-layout'
-import { Button } from '@/components/ui/button'
-import { PasswordInput } from '@/components/ui/password-input'
-import { Alert } from '@/components/ui/alert'
-import { FormField } from '@/components/ui/form-field'
+import { Button, PasswordInput, Alert, FormField } from '@/components/ui'
 
 const searchSchema = z.object({
   token: z.string().optional(),

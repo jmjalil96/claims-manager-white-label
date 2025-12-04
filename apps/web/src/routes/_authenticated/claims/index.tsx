@@ -2,11 +2,12 @@ import { useState, useMemo, useCallback, useSyncExternalStore } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { z } from 'zod'
 import { Plus } from 'lucide-react'
-import { PageHeader } from '@/components/ui/page-header'
-import { Button } from '@/components/ui/button'
-import { Alert } from '@/components/ui/alert'
-import { ViewToggle, type ViewMode } from '@/components/ui/view-toggle'
 import {
+  PageHeader,
+  Button,
+  Alert,
+  ViewToggle,
+  type ViewMode,
   FilterBar,
   SearchInput,
   MultiSelect,
@@ -15,7 +16,7 @@ import {
   countActiveAdvancedFilters,
   type FilterChip,
   type FilterValues,
-} from '@/components/ui/filters'
+} from '@/components/ui'
 import {
   useReactTable,
   getCoreRowModel,
@@ -31,15 +32,24 @@ import {
   createViewAction,
   createEditAction,
   createDeleteAction,
-} from '@/components/ui/data-table'
-import { CardList, CardListEmpty, CardListLoadMore } from '@/components/ui/card-list'
-import { useClaims, useKanbanClaims, claimsFilterConfig, type ClaimsQueryParams, type KanbanQueryParams, type ClaimsSortBy } from '@/features/claims'
-import { ClaimCard } from '@/features/claims/components/ClaimCard'
-import { KanbanBoard } from '@/features/claims/components/KanbanBoard'
+  CardList,
+  CardListEmpty,
+  CardListLoadMore,
+} from '@/components/ui'
+import {
+  useClaims,
+  useKanbanClaims,
+  claimsFilterConfig,
+  ClaimCard,
+  KanbanBoard,
+  type ClaimsQueryParams,
+  type KanbanQueryParams,
+  type ClaimsSortBy,
+} from '@/features/claims'
 import { ClaimStatus, ClaimStatusLabel, CareTypeLabel } from '@claims/shared'
 import type { CareType } from '@claims/shared'
 import type { ClaimListItemDto } from '@claims/shared'
-import { StatusBadge, type BadgeVariant } from '@/components/ui/status-badge'
+import { StatusBadge, type BadgeVariant } from '@/components/ui'
 
 // Hook to detect mobile breakpoint using useSyncExternalStore
 function useIsMobile(breakpoint = 768) {

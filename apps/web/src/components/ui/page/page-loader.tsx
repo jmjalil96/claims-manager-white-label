@@ -1,4 +1,4 @@
-import { Spinner } from './spinner'
+import { Spinner } from '../primitives/spinner'
 
 export function PageLoader() {
   return (

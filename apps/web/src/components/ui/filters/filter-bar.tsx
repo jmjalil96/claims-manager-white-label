@@ -1,6 +1,6 @@
 import { SlidersHorizontal, Filter } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { FilterChips, type FilterChip } from './FilterChips'
+import { Button } from '../primitives/button'
+import { FilterChips, type FilterChip } from './filter-chips'
 import { cn } from '@/lib/utils'
 
 interface FilterBarProps {

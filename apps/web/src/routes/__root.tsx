@@ -4,9 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { FileQuestion, Home } from 'lucide-react'
 import { queryClient } from '@/lib/query-client'
-import { Toaster } from '@/components/ui/toaster'
-import { ErrorBoundary } from '@/components/error-boundary'
-import { Button } from '@/components/ui/button'
+import { Toaster, ErrorBoundary, Button } from '@/components/ui'
 
 export const Route = createRootRoute({
   component: RootComponent,

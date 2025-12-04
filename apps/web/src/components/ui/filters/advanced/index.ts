@@ -27,6 +27,6 @@ export {
 } from './types'
 
 // Components
-export { AdvancedFiltersSheet } from './AdvancedFiltersSheet'
-export { FilterSection as FilterSectionGroup } from './FilterSection'
-export type { FilterSectionProps } from './FilterSection'
+export { AdvancedFiltersSheet } from './advanced-filters-sheet'
+export { FilterSection as FilterSectionGroup } from './filter-section'
+export type { FilterSectionProps } from './filter-section'

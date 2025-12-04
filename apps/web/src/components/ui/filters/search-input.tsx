@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { Search } from 'lucide-react'
-import { Input } from '@/components/ui/input'
+import { Input } from '../primitives/input'
 import { cn } from '@/lib/utils'
-import { useDebounce } from './useDebounce'
+import { useDebounce } from '@/hooks'
 
 interface SearchInputProps {
   value: string

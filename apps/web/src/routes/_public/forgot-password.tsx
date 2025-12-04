@@ -4,12 +4,9 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Mail, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react'
 import { forgetPassword } from '@/lib/auth-client'
-import { forgotPasswordSchema, type ForgotPasswordInput } from '@/features/auth/schemas'
+import { forgotPasswordSchema, type ForgotPasswordInput } from '@/features/auth'
 import { AuthLayout } from '@/components/layouts/auth-layout'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Alert } from '@/components/ui/alert'
-import { FormField } from '@/components/ui/form-field'
+import { Button, Input, Alert, FormField } from '@/components/ui'
 
 export const Route = createFileRoute('/_public/forgot-password')({
   component: ForgotPasswordComponent,

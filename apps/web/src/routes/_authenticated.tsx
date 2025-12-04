@@ -1,8 +1,8 @@
 import { useCallback } from 'react'
 import { createFileRoute, Outlet, Navigate } from '@tanstack/react-router'
 import { useSession, signOut } from '@/lib/auth-client'
-import { PageLoader } from '@/components/ui/page-loader'
 import {
+  PageLoader,
   SidebarProvider,
   Sidebar,
   SidebarHeader,
@@ -16,7 +16,7 @@ import {
   SidebarMobileTrigger,
   SidebarMobileDrawer,
   SidebarUserMenu,
-} from '@/components/ui/sidebar'
+} from '@/components/ui'
 import {
   LayoutDashboard,
   Folder,

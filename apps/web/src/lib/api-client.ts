@@ -1,13 +1,6 @@
-export class ApiError extends Error {
-  constructor(
-    public status: number,
-    public statusText: string,
-    public data?: unknown
-  ) {
-    super(`${status}: ${statusText}`)
-    this.name = 'ApiError'
-  }
-}
+import { ApiError } from './errors'
+
+export { ApiError }
 
 export async function apiClient<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`/api${endpoint}`, {

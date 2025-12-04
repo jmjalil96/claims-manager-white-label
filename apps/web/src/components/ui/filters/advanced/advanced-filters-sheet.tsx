@@ -6,11 +6,11 @@ import {
   SheetTitle,
   SheetBody,
   SheetFooter,
-} from '@/components/ui/sheet'
-import { Button } from '@/components/ui/button'
+} from '../../sheet'
+import { Button } from '../../primitives/button'
 import { cn } from '@/lib/utils'
-import { MultiSelect } from '../MultiSelect'
-import { DateRangePicker } from '../DateRangePicker'
+import { MultiSelect } from '../multi-select'
+import { DateRangePicker } from '../date-range-picker'
 import type {
   FilterPanelConfig,
   FilterConfig,

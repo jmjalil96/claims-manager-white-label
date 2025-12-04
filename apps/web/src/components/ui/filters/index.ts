@@ -1,9 +1,8 @@
-export { SearchInput } from './SearchInput'
-export { MultiSelect, type MultiSelectOption } from './MultiSelect'
-export { DateRangePicker } from './DateRangePicker'
-export { FilterChips, type FilterChip } from './FilterChips'
-export { FilterBar } from './FilterBar'
-export { useDebounce } from './useDebounce'
+export { SearchInput } from './search-input'
+export { MultiSelect, type MultiSelectOption } from './multi-select'
+export { DateRangePicker } from './date-range-picker'
+export { FilterChips, type FilterChip } from './filter-chips'
+export { FilterBar } from './filter-bar'
 
 // Advanced filters
 export * from './advanced'

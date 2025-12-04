@@ -5,15 +5,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Lock, Mail, ArrowRight } from 'lucide-react'
 import { z } from 'zod'
 import { signIn } from '@/lib/auth-client'
-import { loginSchema, type LoginInput } from '@/features/auth/schemas'
+import { loginSchema, type LoginInput } from '@/features/auth'
 import { AuthLayout } from '@/components/layouts/auth-layout'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { PasswordInput } from '@/components/ui/password-input'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Alert } from '@/components/ui/alert'
-import { FormField } from '@/components/ui/form-field'
-import { Label } from '@/components/ui/label'
+import { Button, Input, PasswordInput, Checkbox, Alert, FormField, Label } from '@/components/ui'
 
 const searchSchema = z.object({
   redirect: z.string().optional(),

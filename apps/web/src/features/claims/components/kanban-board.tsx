@@ -1,9 +1,9 @@
 import { ClaimStatus, ClaimStatusLabel } from '@claims/shared'
 import type { KanbanClaimsResponse } from '@claims/shared'
-import { ClaimCard } from './ClaimCard'
+import { ClaimCard } from './claim-card'
 import { cn } from '@/lib/utils'
 import { Inbox, RefreshCw } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui'
 
 /* -----------------------------------------------------------------------------
  * KanbanBoard - Claims workflow visualization

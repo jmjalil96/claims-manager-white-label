@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { User, Calendar, DollarSign, ChevronRight } from 'lucide-react'
-import { StatusBadge, type BadgeVariant } from '@/components/ui/status-badge'
+import { StatusBadge, type BadgeVariant } from '@/components/ui'
 import { ClaimStatusLabel } from '@claims/shared'
 import type { ClaimStatus, ClaimListItemDto } from '@claims/shared'
 

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as Popover from '@radix-ui/react-popover'
 import { Calendar, ChevronDown } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '../primitives/button'
 import { cn } from '@/lib/utils'
 
 interface DateRangePickerProps {

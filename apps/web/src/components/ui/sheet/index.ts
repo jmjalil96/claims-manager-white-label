@@ -6,7 +6,7 @@ export {
   SheetBody,
   SheetFooter,
   sheetVariants,
-} from './Sheet'
+} from './sheet'
 
 export type {
   SheetProps,
@@ -15,4 +15,4 @@ export type {
   SheetDescriptionProps,
   SheetBodyProps,
   SheetFooterProps,
-} from './Sheet'
+} from './sheet'
