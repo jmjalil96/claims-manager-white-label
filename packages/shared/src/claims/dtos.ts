@@ -45,6 +45,19 @@ export interface ListClaimsResponse {
   meta: PaginationMeta
 }
 
+/** Valid sort fields for claims list */
+export const ClaimsSortBy = {
+  CREATED_AT: 'createdAt',
+  CLAIM_NUMBER: 'claimNumber',
+  STATUS: 'status',
+  SUBMITTED_DATE: 'submittedDate',
+  SETTLEMENT_DATE: 'settlementDate',
+  AMOUNT_SUBMITTED: 'amountSubmitted',
+  AMOUNT_APPROVED: 'amountApproved',
+  INCIDENT_DATE: 'incidentDate',
+} as const
+export type ClaimsSortBy = (typeof ClaimsSortBy)[keyof typeof ClaimsSortBy]
+
 // =============================================================================
 // CREATE CLAIM
 // =============================================================================

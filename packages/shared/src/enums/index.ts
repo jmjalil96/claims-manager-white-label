@@ -156,3 +156,9 @@ export const InvoiceFileCategory = {
   OTHER: 'OTHER',
 } as const
 export type InvoiceFileCategory = (typeof InvoiceFileCategory)[keyof typeof InvoiceFileCategory]
+
+// =============================================================================
+// LABELS (Spanish UI strings)
+// =============================================================================
+
+export * from './labels.js'

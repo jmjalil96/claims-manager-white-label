@@ -1,8 +1,30 @@
+import { useCallback } from 'react'
 import { createFileRoute, Outlet, Navigate } from '@tanstack/react-router'
-import { Link } from '@tanstack/react-router'
 import { useSession, signOut } from '@/lib/auth-client'
-import { Button } from '@/components/ui/button'
 import { PageLoader } from '@/components/ui/page-loader'
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarHeader,
+  SidebarWordmark,
+  SidebarCollapseButton,
+  SidebarContent,
+  SidebarNav,
+  SidebarNavItem,
+  SidebarFooter,
+  SidebarMobileHeader,
+  SidebarMobileTrigger,
+  SidebarMobileDrawer,
+  SidebarUserMenu,
+} from '@/components/ui/sidebar'
+import {
+  LayoutDashboard,
+  Folder,
+  Users,
+  Stethoscope,
+  PieChart,
+  Settings,
+} from 'lucide-react'
 
 export const Route = createFileRoute('/_authenticated')({
   component: AuthenticatedLayout,
@@ -10,6 +32,10 @@ export const Route = createFileRoute('/_authenticated')({
 
 function AuthenticatedLayout() {
   const { data: session, isPending } = useSession()
+
+  const handleSignOut = useCallback(() => {
+    void signOut()
+  }, [])
 
   if (isPending) {
     return <PageLoader />
@@ -19,42 +45,68 @@ function AuthenticatedLayout() {
     return <Navigate to="/login" search={{ redirect: window.location.pathname }} />
   }
 
-  return (
-    <div className="flex min-h-screen">
-      {/* Sidebar */}
-      <aside className="flex w-64 flex-col border-r bg-card">
-        <div className="p-6">
-          <h1 className="text-xl font-bold">Claims Manager</h1>
-        </div>
-        <nav className="flex-1 space-y-1 px-3">
-          <NavLink to="/dashboard">Dashboard</NavLink>
-          <NavLink to="/claims">Claims</NavLink>
-          <NavLink to="/settings">Settings</NavLink>
-        </nav>
-        <div className="border-t p-4">
-          <p className="mb-2 truncate text-sm text-muted-foreground">{session.user.email}</p>
-          <Button variant="outline" size="sm" className="w-full" onClick={() => void signOut()}>
-            Sign out
-          </Button>
-        </div>
-      </aside>
-
-      {/* Main content */}
-      <main className="flex-1 p-8">
-        <Outlet />
-      </main>
-    </div>
+  const navItems = (
+    <>
+      <SidebarNavItem to="/dashboard" icon={LayoutDashboard} exact>
+        Dashboard
+      </SidebarNavItem>
+      <SidebarNavItem to="/claims" icon={Folder}>
+        Claims
+      </SidebarNavItem>
+      <SidebarNavItem to="/patients" icon={Users}>
+        Patients
+      </SidebarNavItem>
+      <SidebarNavItem to="/providers" icon={Stethoscope}>
+        Providers
+      </SidebarNavItem>
+      <SidebarNavItem to="/reports" icon={PieChart}>
+        Reports
+      </SidebarNavItem>
+      <SidebarNavItem to="/settings" icon={Settings}>
+        Settings
+      </SidebarNavItem>
+    </>
   )
-}
 
-function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
   return (
-    <Link
-      to={to}
-      className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground [&.active]:bg-accent [&.active]:text-accent-foreground"
-      activeProps={{ className: 'active' }}
-    >
-      {children}
-    </Link>
+    <SidebarProvider>
+      <div className="flex min-h-screen bg-background">
+        {/* Mobile Header */}
+        <SidebarMobileHeader>
+          <SidebarWordmark />
+          <SidebarMobileTrigger />
+        </SidebarMobileHeader>
+
+        {/* Desktop Sidebar */}
+        <Sidebar>
+          <SidebarHeader className="mb-10">
+            <SidebarWordmark />
+          </SidebarHeader>
+
+          <SidebarContent>
+            <SidebarNav>{navItems}</SidebarNav>
+          </SidebarContent>
+
+          <SidebarFooter>
+            <SidebarUserMenu email={session.user.email} onSignOut={handleSignOut} />
+          </SidebarFooter>
+
+          <SidebarCollapseButton />
+        </Sidebar>
+
+        {/* Mobile Drawer */}
+        <SidebarMobileDrawer>
+          <SidebarNav className="mb-8">{navItems}</SidebarNav>
+          <SidebarUserMenu email={session.user.email} onSignOut={handleSignOut} />
+        </SidebarMobileDrawer>
+
+        {/* Main Content */}
+        <main className="flex-1 min-w-0 pt-14 lg:pt-0">
+          <div className="p-8">
+            <Outlet />
+          </div>
+        </main>
+      </div>
+    </SidebarProvider>
   )
 }

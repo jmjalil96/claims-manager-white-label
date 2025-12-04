@@ -4,17 +4,9 @@
 
 import { z } from 'zod'
 import { ClaimStatus, CareType } from '@prisma/client'
+import { ClaimsSortBy } from '@claims/shared'
 
-const sortByValues = [
-  'createdAt',
-  'claimNumber',
-  'status',
-  'submittedDate',
-  'settlementDate',
-  'amountSubmitted',
-  'amountApproved',
-  'incidentDate',
-] as const
+const sortByValues = Object.values(ClaimsSortBy) as [string, ...string[]]
 
 /**
  * Query params schema for listing claims
