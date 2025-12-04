@@ -1,415 +1,523 @@
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import {
-  PageHeader,
-  Button,
-  FilterBar,
-  SearchInput,
-  MultiSelect,
-  DateRangePicker,
-  type FilterChip,
-} from '@/components/ui'
-import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  getPaginationRowModel,
-  createColumnHelper,
-  type ColumnDef,
-  type SortingState,
-  type PaginationState,
-} from '@tanstack/react-table'
-import {
-  DataTable,
-  DataTablePagination,
-  DataTableRowActions,
-  createViewAction,
-  createEditAction,
-  createDeleteAction,
-} from '@/components/ui'
-import { cn } from '@/lib/utils'
+import { FileText, Receipt, Clock, History, Info } from 'lucide-react'
+import { ClaimStatus, CareType } from '@claims/shared'
+import { Tabs, TabsList, TabsTrigger, TabsContent, EditableText, EditableNumber, EditableSelect, EditableTextarea, EditableDate } from '@/components/ui'
+import { ClaimDetailHeader, ClaimWorkflowStepper } from '@/features/claims/components'
 
 export const Route = createFileRoute('/_authenticated/test')({
-  component: TestPage,
+  component: ComponentRepositoryPage,
 })
 
-// Mock data type
-interface User {
-  id: string
-  name: string
-  email: string
-  role: 'admin' | 'user' | 'editor'
-  status: 'active' | 'inactive' | 'pending'
-  department: string
-  joinedAt: string
-  salary: number
-}
+/* -----------------------------------------------------------------------------
+ * Mock Data
+ * -------------------------------------------------------------------------- */
 
-// Mock data
-const mockUsers: User[] = [
-  {
-    id: '1',
-    name: 'Alice Johnson',
-    email: 'alice@example.com',
-    role: 'admin',
-    status: 'active',
-    department: 'Engineering',
-    joinedAt: '2023-01-15',
-    salary: 95000,
-  },
-  {
-    id: '2',
-    name: 'Bob Smith',
-    email: 'bob@example.com',
-    role: 'user',
-    status: 'active',
-    department: 'Marketing',
-    joinedAt: '2023-03-22',
-    salary: 65000,
-  },
-  {
-    id: '3',
-    name: 'Carol Williams',
-    email: 'carol@example.com',
-    role: 'editor',
-    status: 'pending',
-    department: 'Content',
-    joinedAt: '2024-01-10',
-    salary: 72000,
-  },
-  {
-    id: '4',
-    name: 'David Brown',
-    email: 'david@example.com',
-    role: 'user',
-    status: 'inactive',
-    department: 'Sales',
-    joinedAt: '2022-08-05',
-    salary: 58000,
-  },
-  {
-    id: '5',
-    name: 'Eva Martinez',
-    email: 'eva@example.com',
-    role: 'admin',
-    status: 'active',
-    department: 'Engineering',
-    joinedAt: '2022-05-18',
-    salary: 110000,
-  },
-  {
-    id: '6',
-    name: 'Frank Garcia',
-    email: 'frank@example.com',
-    role: 'editor',
-    status: 'active',
-    department: 'Content',
-    joinedAt: '2023-07-30',
-    salary: 68000,
-  },
-  {
-    id: '7',
-    name: 'Grace Lee',
-    email: 'grace@example.com',
-    role: 'user',
-    status: 'pending',
-    department: 'HR',
-    joinedAt: '2024-02-14',
-    salary: 55000,
-  },
-  {
-    id: '8',
-    name: 'Henry Wilson',
-    email: 'henry@example.com',
-    role: 'user',
-    status: 'active',
-    department: 'Finance',
-    joinedAt: '2023-11-01',
-    salary: 78000,
-  },
-  {
-    id: '9',
-    name: 'Ivy Chen',
-    email: 'ivy@example.com',
-    role: 'editor',
-    status: 'active',
-    department: 'Content',
-    joinedAt: '2023-09-12',
-    salary: 70000,
-  },
-  {
-    id: '10',
-    name: 'Jack Taylor',
-    email: 'jack@example.com',
-    role: 'user',
-    status: 'inactive',
-    department: 'Sales',
-    joinedAt: '2022-12-03',
-    salary: 62000,
-  },
-  {
-    id: '11',
-    name: 'Karen White',
-    email: 'karen@example.com',
-    role: 'admin',
-    status: 'active',
-    department: 'Operations',
-    joinedAt: '2022-03-28',
-    salary: 98000,
-  },
-  {
-    id: '12',
-    name: 'Leo Adams',
-    email: 'leo@example.com',
-    role: 'user',
-    status: 'pending',
-    department: 'Engineering',
-    joinedAt: '2024-03-01',
-    salary: 85000,
-  },
+const mockHeaders = [
+  { claimNumber: '2024-001234', status: ClaimStatus.PENDING_INFO, careType: CareType.AMBULATORY },
+  { claimNumber: '2024-001235', status: ClaimStatus.SETTLED, careType: CareType.HOSPITALIZATION },
+  { claimNumber: '2024-001236', status: ClaimStatus.DRAFT, careType: null },
 ]
 
-// Status badge component
-function StatusBadge({ status }: { status: User['status'] }) {
-  const styles: Record<User['status'], string> = {
-    active: 'bg-green-100 text-green-700',
-    inactive: 'bg-slate-100 text-slate-700',
-    pending: 'bg-amber-100 text-amber-700',
-  }
-
-  return (
-    <span className={cn('inline-flex px-2 py-1 rounded-full text-xs font-medium', styles[status])}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
-    </span>
-  )
+interface StepperMock {
+  status: ClaimStatus
+  label: string
+  pendingReason?: string
+  returnReason?: string
+  cancellationReason?: string
 }
 
-// Role badge component
-function RoleBadge({ role }: { role: User['role'] }) {
-  const styles: Record<User['role'], string> = {
-    admin: 'bg-purple-100 text-purple-700',
-    editor: 'bg-blue-100 text-blue-700',
-    user: 'bg-slate-100 text-slate-700',
-  }
-
-  return (
-    <span className={cn('inline-flex px-2 py-1 rounded-full text-xs font-medium', styles[role])}>
-      {role.charAt(0).toUpperCase() + role.slice(1)}
-    </span>
-  )
-}
-
-// Column helper for type safety
-const columnHelper = createColumnHelper<User>()
-
-// Status options for multi-select
-const STATUS_OPTIONS = [
-  { value: 'active', label: 'Active' },
-  { value: 'inactive', label: 'Inactive' },
-  { value: 'pending', label: 'Pending' },
+const mockSteppers: StepperMock[] = [
+  { status: ClaimStatus.DRAFT, label: 'DRAFT - First step' },
+  { status: ClaimStatus.VALIDATION, label: 'VALIDATION - Second step' },
+  { status: ClaimStatus.SUBMITTED, label: 'SUBMITTED - Third step' },
+  { status: ClaimStatus.PENDING_INFO, pendingReason: 'Falta adjuntar factura original', label: 'PENDING_INFO - Alternative state' },
+  { status: ClaimStatus.RETURNED, returnReason: 'Documentación incompleta', label: 'RETURNED - Terminal (failed)' },
+  { status: ClaimStatus.SETTLED, label: 'SETTLED - Terminal (success)' },
+  { status: ClaimStatus.CANCELLED, cancellationReason: 'Solicitud del afiliado', label: 'CANCELLED - Terminal' },
 ]
 
-// Status label map for chips
-const STATUS_LABELS: Record<string, string> = {
-  active: 'Active',
-  inactive: 'Inactive',
-  pending: 'Pending',
-}
+/* -----------------------------------------------------------------------------
+ * Component Repository Page
+ * -------------------------------------------------------------------------- */
 
-function TestPage() {
-  const [sorting, setSorting] = useState<SortingState>([])
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 5,
-  })
-  const [data] = useState(mockUsers)
+function ComponentRepositoryPage() {
+  const [pillTab, setPillTab] = useState('info')
+  const [lineTab, setLineTab] = useState('info')
 
-  // Filter state
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState<string[]>([])
-  const [joinedFrom, setJoinedFrom] = useState<string | undefined>()
-  const [joinedTo, setJoinedTo] = useState<string | undefined>()
+  // EditableText demo state
+  const [description, setDescription] = useState('Consulta médica general')
+  const [emptyField, setEmptyField] = useState<string | null>(null)
+  const [requiredField, setRequiredField] = useState('Valor inicial')
 
-  // Build filter chips
-  const filterChips = useMemo<FilterChip[]>(() => {
-    const chips: FilterChip[] = []
+  // EditableNumber demo state
+  const [amount, setAmount] = useState<number | null>(1234.56)
+  const [emptyAmount, setEmptyAmount] = useState<number | null>(null)
+  const [boundedAmount, setBoundedAmount] = useState<number | null>(50)
 
-    if (search) {
-      chips.push({
-        key: 'search',
-        label: 'Search',
-        value: search,
-        onRemove: () => setSearch(''),
-      })
-    }
+  // EditableSelect demo state
+  const [status, setStatus] = useState<ClaimStatus | null>(ClaimStatus.DRAFT)
+  const [careType, setCareType] = useState<CareType | null>(null)
 
-    statusFilter.forEach((status) => {
-      chips.push({
-        key: `status-${status}`,
-        label: 'Status',
-        value: STATUS_LABELS[status] || status,
-        onRemove: () => setStatusFilter((prev) => prev.filter((s) => s !== status)),
-      })
-    })
+  // EditableTextarea demo state
+  const [notes, setNotes] = useState<string | null>('Paciente presenta síntomas de gripe.\nSe recomienda reposo.')
+  const [emptyNotes, setEmptyNotes] = useState<string | null>(null)
 
-    if (joinedFrom || joinedTo) {
-      const value = joinedFrom && joinedTo
-        ? `${joinedFrom} - ${joinedTo}`
-        : joinedFrom || joinedTo || ''
-      chips.push({
-        key: 'joined',
-        label: 'Joined',
-        value,
-        onRemove: () => {
-          setJoinedFrom(undefined)
-          setJoinedTo(undefined)
-        },
-      })
-    }
-
-    return chips
-  }, [search, statusFilter, joinedFrom, joinedTo])
-
-  const clearAllFilters = () => {
-    setSearch('')
-    setStatusFilter([])
-    setJoinedFrom(undefined)
-    setJoinedTo(undefined)
-  }
-
-  // Define columns
-  const columns: ColumnDef<User, unknown>[] = [
-    columnHelper.accessor('name', {
-      header: 'Name',
-      cell: (info) => <span className="font-medium">{info.getValue()}</span>,
-      enableSorting: true,
-    }),
-    columnHelper.accessor('email', {
-      header: 'Email',
-      cell: (info) => <span className="text-slate-500">{info.getValue()}</span>,
-      enableSorting: true,
-    }),
-    columnHelper.accessor('role', {
-      header: 'Role',
-      cell: (info) => <RoleBadge role={info.getValue()} />,
-      enableSorting: true,
-    }),
-    columnHelper.accessor('status', {
-      header: 'Status',
-      cell: (info) => <StatusBadge status={info.getValue()} />,
-      enableSorting: true,
-    }),
-    columnHelper.accessor('department', {
-      header: 'Department',
-      enableSorting: true,
-    }),
-    columnHelper.accessor('salary', {
-      header: 'Salary',
-      cell: (info) => (
-        <span className="tabular-nums">
-          ${info.getValue().toLocaleString()}
-        </span>
-      ),
-      enableSorting: true,
-    }),
-    columnHelper.accessor('joinedAt', {
-      header: 'Joined',
-      cell: (info) => new Date(info.getValue()).toLocaleDateString(),
-      enableSorting: true,
-    }),
-    columnHelper.display({
-      id: 'actions',
-      header: '',
-      cell: ({ row }) => (
-        <DataTableRowActions
-          label={`Actions for ${row.original.name}`}
-          actions={[
-            createViewAction(() => alert(`View: ${row.original.name}`)),
-            createEditAction(() => alert(`Edit: ${row.original.name}`)),
-            createDeleteAction(() => alert(`Delete: ${row.original.name}`)),
-          ]}
-        />
-      ),
-    }),
-  ]
-
-  // Create table instance
-  // eslint-disable-next-line react-hooks/incompatible-library -- TanStack Table acknowledged
-  const table = useReactTable({
-    data,
-    columns,
-    state: { sorting, pagination },
-    onSortingChange: setSorting,
-    onPaginationChange: setPagination,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  })
+  // EditableDate demo state
+  const [incidentDate, setIncidentDate] = useState<string | null>('2024-11-15')
+  const [emptyDate, setEmptyDate] = useState<string | null>(null)
+  const [boundedDate, setBoundedDate] = useState<string | null>('2024-12-01')
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Data Table Test"
-        breadcrumbs={[
-          { label: 'Home', href: '/dashboard' },
-          { label: 'Components' },
-          { label: 'Data Table' },
-        ]}
-        actions={<Button>New User</Button>}
-      />
+    <div className="space-y-12 pb-12">
+      <div>
+        <h1 className="text-3xl font-bold text-slate-900">Component Repository</h1>
+        <p className="text-slate-500 mt-1">Test and preview claim detail components</p>
+      </div>
 
-      <FilterBar
-        search={
-          <SearchInput
-            value={search}
-            onChange={setSearch}
-            placeholder="Search users..."
-          />
-        }
-        quickFilters={
-          <>
-            <MultiSelect
-              label="Status"
-              options={STATUS_OPTIONS}
-              value={statusFilter}
-              onChange={setStatusFilter}
-            />
-            <DateRangePicker
-              label="Joined"
-              fromValue={joinedFrom}
-              toValue={joinedTo}
-              onChange={(from, to) => {
-                setJoinedFrom(from)
-                setJoinedTo(to)
+      {/* EditableText */}
+      <section className="space-y-6">
+        <div className="border-b border-slate-200 pb-2">
+          <h2 className="text-xl font-semibold text-slate-900">EditableText</h2>
+          <p className="text-sm text-slate-500">Inline editable text field with save/cancel actions</p>
+        </div>
+
+        <div className="rounded-lg border border-slate-200 p-6 bg-white">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Basic usage */}
+            <EditableText
+              label="Descripción"
+              value={description}
+              onSave={async (value) => {
+                await new Promise((r) => setTimeout(r, 1000))
+                setDescription(value)
               }}
             />
-          </>
-        }
-        chips={filterChips}
-        onClearAll={filterChips.length > 0 ? clearAllFilters : undefined}
-        moreFiltersCount={2}
-        onMoreFilters={() => alert('More filters modal would open here')}
-      />
 
-      <div className="rounded-lg border border-slate-200 overflow-hidden">
-        <DataTable table={table} />
-        <DataTablePagination table={table} />
-      </div>
+            {/* Empty value */}
+            <EditableText
+              label="Campo Vacío"
+              value={emptyField}
+              onSave={async (value) => {
+                await new Promise((r) => setTimeout(r, 500))
+                setEmptyField(value || null)
+              }}
+            />
 
-      <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-        <h2 className="font-semibold">Features Demonstrated</h2>
-        <ul className="mt-2 list-disc list-inside text-sm text-slate-600 space-y-1">
-          <li>Click column headers to sort (ascending/descending/none)</li>
-          <li>Keyboard accessible sorting (Tab + Enter/Space)</li>
-          <li>Horizontal scrolling when table overflows</li>
-          <li>Kebab menu with view/edit/delete actions</li>
-          <li>Status and role badges with color coding</li>
-          <li>Pagination with first/prev/next/last navigation</li>
-          <li>Page size selector (5, 10, 20, 50, 100)</li>
-          <li>Loading skeleton (set isLoading=true to see)</li>
-          <li>Empty state message</li>
-        </ul>
-      </div>
+            {/* Required field */}
+            <EditableText
+              label="Campo Requerido"
+              value={requiredField}
+              required
+              onSave={async (value) => {
+                await new Promise((r) => setTimeout(r, 500))
+                setRequiredField(value)
+              }}
+            />
+
+            {/* Disabled */}
+            <EditableText
+              label="Campo Deshabilitado"
+              value="No editable"
+              disabled
+              onSave={async () => {}}
+            />
+
+            {/* With error simulation */}
+            <EditableText
+              label="Simula Error"
+              value="Intenta guardar..."
+              onSave={async () => {
+                await new Promise((r) => setTimeout(r, 500))
+                throw new Error('Error de conexión')
+              }}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* EditableNumber */}
+      <section className="space-y-6">
+        <div className="border-b border-slate-200 pb-2">
+          <h2 className="text-xl font-semibold text-slate-900">EditableNumber</h2>
+          <p className="text-sm text-slate-500">Inline editable number field with currency formatting</p>
+        </div>
+
+        <div className="rounded-lg border border-slate-200 p-6 bg-white">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* With currency prefix */}
+            <EditableNumber
+              label="Monto Presentado"
+              value={amount}
+              prefix="$"
+              onSave={async (value) => {
+                await new Promise((r) => setTimeout(r, 1000))
+                setAmount(value)
+              }}
+            />
+
+            {/* Empty value */}
+            <EditableNumber
+              label="Monto Aprobado"
+              value={emptyAmount}
+              prefix="$"
+              onSave={async (value) => {
+                await new Promise((r) => setTimeout(r, 500))
+                setEmptyAmount(value)
+              }}
+            />
+
+            {/* With min/max bounds */}
+            <EditableNumber
+              label="Porcentaje (0-100)"
+              value={boundedAmount}
+              suffix="%"
+              min={0}
+              max={100}
+              step={1}
+              onSave={async (value) => {
+                await new Promise((r) => setTimeout(r, 500))
+                setBoundedAmount(value)
+              }}
+            />
+
+            {/* Disabled */}
+            <EditableNumber
+              label="Campo Deshabilitado"
+              value={999.99}
+              prefix="$"
+              disabled
+              onSave={async () => {}}
+            />
+
+            {/* With error simulation */}
+            <EditableNumber
+              label="Simula Error"
+              value={100}
+              prefix="Q"
+              onSave={async () => {
+                await new Promise((r) => setTimeout(r, 500))
+                throw new Error('Error de conexión')
+              }}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* EditableSelect */}
+      <section className="space-y-6">
+        <div className="border-b border-slate-200 pb-2">
+          <h2 className="text-xl font-semibold text-slate-900">EditableSelect</h2>
+          <p className="text-sm text-slate-500">Inline editable dropdown with typed options</p>
+        </div>
+
+        <div className="rounded-lg border border-slate-200 p-6 bg-white">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Status select */}
+            <EditableSelect<ClaimStatus>
+              label="Estado"
+              value={status}
+              options={[
+                { value: ClaimStatus.DRAFT, label: 'Borrador' },
+                { value: ClaimStatus.VALIDATION, label: 'Validación' },
+                { value: ClaimStatus.SUBMITTED, label: 'Enviado' },
+                { value: ClaimStatus.PENDING_INFO, label: 'Pendiente Info' },
+                { value: ClaimStatus.SETTLED, label: 'Liquidado' },
+              ]}
+              onSave={async (value) => {
+                await new Promise((r) => setTimeout(r, 1000))
+                setStatus(value)
+              }}
+            />
+
+            {/* Empty value */}
+            <EditableSelect<CareType>
+              label="Tipo de Atención"
+              value={careType}
+              options={[
+                { value: CareType.AMBULATORY, label: 'Ambulatorio' },
+                { value: CareType.HOSPITALIZATION, label: 'Hospitalización' },
+                { value: CareType.MATERNITY, label: 'Maternidad' },
+                { value: CareType.EMERGENCY, label: 'Emergencia' },
+              ]}
+              onSave={async (value) => {
+                await new Promise((r) => setTimeout(r, 500))
+                setCareType(value)
+              }}
+            />
+
+            {/* Disabled */}
+            <EditableSelect<ClaimStatus>
+              label="Campo Deshabilitado"
+              value={ClaimStatus.SETTLED}
+              options={[
+                { value: ClaimStatus.SETTLED, label: 'Liquidado' },
+              ]}
+              disabled
+              onSave={async () => {}}
+            />
+
+            {/* With error simulation */}
+            <EditableSelect<ClaimStatus>
+              label="Simula Error"
+              value={ClaimStatus.DRAFT}
+              options={[
+                { value: ClaimStatus.DRAFT, label: 'Borrador' },
+                { value: ClaimStatus.VALIDATION, label: 'Validación' },
+              ]}
+              onSave={async () => {
+                await new Promise((r) => setTimeout(r, 500))
+                throw new Error('Error de conexión')
+              }}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* EditableTextarea */}
+      <section className="space-y-6">
+        <div className="border-b border-slate-200 pb-2">
+          <h2 className="text-xl font-semibold text-slate-900">EditableTextarea</h2>
+          <p className="text-sm text-slate-500">Inline editable multiline text field</p>
+        </div>
+
+        <div className="rounded-lg border border-slate-200 p-6 bg-white">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Basic usage with multiline */}
+            <EditableTextarea
+              label="Notas del Reclamo"
+              value={notes}
+              rows={4}
+              onSave={async (value) => {
+                await new Promise((r) => setTimeout(r, 1000))
+                setNotes(value || null)
+              }}
+            />
+
+            {/* Empty value */}
+            <EditableTextarea
+              label="Observaciones"
+              value={emptyNotes}
+              rows={3}
+              placeholder="Agregue observaciones..."
+              onSave={async (value) => {
+                await new Promise((r) => setTimeout(r, 500))
+                setEmptyNotes(value || null)
+              }}
+            />
+
+            {/* Disabled */}
+            <EditableTextarea
+              label="Campo Deshabilitado"
+              value="Este campo no es editable.\nSegunda línea de texto."
+              rows={3}
+              disabled
+              onSave={async () => {}}
+            />
+
+            {/* With error simulation */}
+            <EditableTextarea
+              label="Simula Error"
+              value="Intenta guardar..."
+              rows={2}
+              onSave={async () => {
+                await new Promise((r) => setTimeout(r, 500))
+                throw new Error('Error de conexión')
+              }}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* EditableDate */}
+      <section className="space-y-6">
+        <div className="border-b border-slate-200 pb-2">
+          <h2 className="text-xl font-semibold text-slate-900">EditableDate</h2>
+          <p className="text-sm text-slate-500">Inline editable date field with DD/MM/YYYY display format</p>
+        </div>
+
+        <div className="rounded-lg border border-slate-200 p-6 bg-white">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Basic usage */}
+            <EditableDate
+              label="Fecha Incidente"
+              value={incidentDate}
+              onSave={async (value) => {
+                await new Promise((r) => setTimeout(r, 1000))
+                setIncidentDate(value)
+              }}
+            />
+
+            {/* Empty value */}
+            <EditableDate
+              label="Fecha Liquidación"
+              value={emptyDate}
+              onSave={async (value) => {
+                await new Promise((r) => setTimeout(r, 500))
+                setEmptyDate(value)
+              }}
+            />
+
+            {/* With min/max bounds */}
+            <EditableDate
+              label="Fecha Presentado (2024)"
+              value={boundedDate}
+              min="2024-01-01"
+              max="2024-12-31"
+              onSave={async (value) => {
+                await new Promise((r) => setTimeout(r, 500))
+                setBoundedDate(value)
+              }}
+            />
+
+            {/* Disabled */}
+            <EditableDate
+              label="Campo Deshabilitado"
+              value="2024-10-20"
+              disabled
+              onSave={async () => {}}
+            />
+
+            {/* With error simulation */}
+            <EditableDate
+              label="Simula Error"
+              value="2024-09-15"
+              onSave={async () => {
+                await new Promise((r) => setTimeout(r, 500))
+                throw new Error('Error de conexión')
+              }}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Tabs - Line Variant */}
+      <section className="space-y-6">
+        <div className="border-b border-slate-200 pb-2">
+          <h2 className="text-xl font-semibold text-slate-900">Tabs (Line Variant)</h2>
+          <p className="text-sm text-slate-500">For main page navigation with icons and badges</p>
+        </div>
+
+        <div className="rounded-lg border border-slate-200 p-6 bg-white">
+          <Tabs variant="line" value={lineTab} onValueChange={setLineTab}>
+            <TabsList>
+              <TabsTrigger value="info" icon={<Info />}>Información</TabsTrigger>
+              <TabsTrigger value="files" icon={<FileText />} badge={3}>Archivos</TabsTrigger>
+              <TabsTrigger value="invoices" icon={<Receipt />} badge={2}>Facturas</TabsTrigger>
+              <TabsTrigger value="sla" icon={<Clock />}>SLA</TabsTrigger>
+              <TabsTrigger value="history" icon={<History />}>Historial</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="info">
+              <div className="rounded-lg bg-slate-50 p-4">
+                <p className="text-sm text-slate-600">Detalle principal del reclamo.</p>
+              </div>
+            </TabsContent>
+            <TabsContent value="files">
+              <div className="rounded-lg bg-slate-50 p-4">
+                <p className="text-sm text-slate-600">3 archivos adjuntos.</p>
+              </div>
+            </TabsContent>
+            <TabsContent value="invoices">
+              <div className="rounded-lg bg-slate-50 p-4">
+                <p className="text-sm text-slate-600">2 facturas asociadas.</p>
+              </div>
+            </TabsContent>
+            <TabsContent value="sla">
+              <div className="rounded-lg bg-slate-50 p-4">
+                <p className="text-sm text-slate-600">Métricas de tiempo de respuesta.</p>
+              </div>
+            </TabsContent>
+            <TabsContent value="history">
+              <div className="rounded-lg bg-slate-50 p-4">
+                <p className="text-sm text-slate-600">Registro de auditoría.</p>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </section>
+
+      {/* Tabs - Pill Variant */}
+      <section className="space-y-6">
+        <div className="border-b border-slate-200 pb-2">
+          <h2 className="text-xl font-semibold text-slate-900">Tabs (Pill Variant)</h2>
+          <p className="text-sm text-slate-500">For compact context switches</p>
+        </div>
+
+        <div className="rounded-lg border border-slate-200 p-6 bg-white">
+          <Tabs variant="pill" value={pillTab} onValueChange={setPillTab}>
+            <TabsList>
+              <TabsTrigger value="info">Info</TabsTrigger>
+              <TabsTrigger value="files" badge={3}>Archivos</TabsTrigger>
+              <TabsTrigger value="invoices">Facturas</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="info">
+              <div className="rounded-lg bg-slate-50 p-4">
+                <p className="text-sm text-slate-600">Pill style content.</p>
+              </div>
+            </TabsContent>
+            <TabsContent value="files">
+              <div className="rounded-lg bg-slate-50 p-4">
+                <p className="text-sm text-slate-600">Files content.</p>
+              </div>
+            </TabsContent>
+            <TabsContent value="invoices">
+              <div className="rounded-lg bg-slate-50 p-4">
+                <p className="text-sm text-slate-600">Invoices content.</p>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </section>
+
+      {/* ClaimWorkflowStepper */}
+      <section className="space-y-6">
+        <div className="border-b border-slate-200 pb-2">
+          <h2 className="text-xl font-semibold text-slate-900">ClaimWorkflowStepper</h2>
+          <p className="text-sm text-slate-500">Workflow stepper with status progression and actions</p>
+        </div>
+
+        <div className="space-y-6">
+          {mockSteppers.map((stepper) => (
+            <div key={stepper.status}>
+              <p className="text-xs font-medium text-slate-500 mb-2">{stepper.label}</p>
+              <ClaimWorkflowStepper
+                currentStatus={stepper.status}
+                pendingReason={stepper.pendingReason}
+                returnReason={stepper.returnReason}
+                cancellationReason={stepper.cancellationReason}
+                onTransition={(toStatus) => alert(`Transition to: ${toStatus}`)}
+              />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ClaimDetailHeader */}
+      <section className="space-y-6">
+        <div className="border-b border-slate-200 pb-2">
+          <h2 className="text-xl font-semibold text-slate-900">ClaimDetailHeader</h2>
+          <p className="text-sm text-slate-500">Header component for claim detail view</p>
+        </div>
+
+        <div className="space-y-8">
+          {mockHeaders.map((claim) => (
+            <div
+              key={claim.claimNumber}
+              className="rounded-lg border border-slate-200 p-6 bg-white"
+            >
+              <ClaimDetailHeader
+                claimNumber={claim.claimNumber}
+                status={claim.status}
+                careType={claim.careType}
+                onEdit={() => alert(`Edit claim ${claim.claimNumber}`)}
+                onMoreActions={() => alert(`More actions for ${claim.claimNumber}`)}
+              />
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   )
 }

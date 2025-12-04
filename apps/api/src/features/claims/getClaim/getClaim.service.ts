@@ -27,9 +27,15 @@ const logger = createLogger('claims:getClaim')
 export async function getClaim(id: string, user: AuthUser): Promise<ClaimDetailDto> {
   logger.info({ claimId: id, userId: user.id }, 'Getting claim details')
 
-  // 1. Fetch claim
+  // 1. Fetch claim with relationships
   const claim = await db.claim.findUnique({
     where: { id },
+    include: {
+      client: { select: { name: true } },
+      affiliate: { select: { firstName: true, lastName: true } },
+      patient: { select: { firstName: true, lastName: true } },
+      policy: { select: { policyNumber: true } },
+    },
   })
 
   if (!claim) {
@@ -83,6 +89,11 @@ export async function getClaim(id: string, user: AuthUser): Promise<ClaimDetailD
     affiliateId: claim.affiliateId,
     patientId: claim.patientId,
     policyId: claim.policyId,
+    // Denormalized names
+    clientName: claim.client.name,
+    affiliateName: `${claim.affiliate.firstName} ${claim.affiliate.lastName}`,
+    patientName: `${claim.patient.firstName} ${claim.patient.lastName}`,
+    policyNumber: claim.policy?.policyNumber ?? null,
     careType: claim.careType,
     description: claim.description,
     diagnosisCode: claim.diagnosisCode,

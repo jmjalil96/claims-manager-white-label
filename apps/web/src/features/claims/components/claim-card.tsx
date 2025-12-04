@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { User, Calendar, DollarSign, ChevronRight } from 'lucide-react'
 import { StatusBadge, type BadgeVariant } from '@/components/ui'
+import { formatDate } from '@/lib/utils'
 import { ClaimStatusLabel } from '@claims/shared'
 import type { ClaimStatus, ClaimListItemDto } from '@claims/shared'
 
@@ -35,12 +36,6 @@ function getClaimStatusVariant(status: ClaimStatus): BadgeVariant {
     CANCELLED: 'default',
   }
   return map[status]
-}
-
-// Format date
-function formatDate(dateString: string | null): string {
-  if (!dateString) return '—'
-  return new Date(dateString).toLocaleDateString()
 }
 
 export function ClaimCard({ claim }: ClaimCardProps) {

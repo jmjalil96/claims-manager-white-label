@@ -83,6 +83,8 @@ export async function getKanbanClaims(
     createdAtTo,
     search,
     limitPerColumn,
+    expandStatus,
+    expandLimit,
   } = input
 
   logger.info({ userId: user.id, filters: input }, 'Getting kanban claims')
@@ -192,16 +194,18 @@ export async function getKanbanClaims(
     countMap.set(sc.status, sc._count)
   }
 
-  // 5. Get claims per status (parallel queries)
+  // 5. Get claims per status (parallel queries with per-column take)
   const claimsPerStatus = await Promise.all(
-    KANBAN_STATUS_ORDER.map((status) =>
-      db.claim.findMany({
+    KANBAN_STATUS_ORDER.map((status) => {
+      const take =
+        expandStatus === status && expandLimit ? expandLimit : limitPerColumn
+      return db.claim.findMany({
         where: { ...baseWhere, status },
         orderBy: { createdAt: 'desc' },
-        take: limitPerColumn,
+        take,
         select: CLAIM_LIST_SELECT,
       })
-    )
+    })
   )
 
   // 6. Build response
@@ -210,11 +214,13 @@ export async function getKanbanClaims(
   for (let i = 0; i < KANBAN_STATUS_ORDER.length; i++) {
     const status = KANBAN_STATUS_ORDER[i]!
     const claims = claimsPerStatus[i]!
+    const totalCount = countMap.get(status) ?? 0
 
     columns[status] = {
       status: status as unknown as (typeof ClaimStatus)[keyof typeof ClaimStatus],
-      count: countMap.get(status) ?? 0,
+      count: totalCount,
       claims: claims.map(toClaimListItemDto),
+      hasMore: totalCount > claims.length,
     }
   }
 
@@ -238,6 +244,7 @@ function buildEmptyResponse(): KanbanClaimsResponse {
       status: status as unknown as (typeof ClaimStatus)[keyof typeof ClaimStatus],
       count: 0,
       claims: [],
+      hasMore: false,
     }
   }
 

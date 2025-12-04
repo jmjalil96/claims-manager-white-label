@@ -3,7 +3,7 @@
  */
 
 import { z } from 'zod'
-import { CareType } from '@prisma/client'
+import { CareType, ClaimStatus } from '@prisma/client'
 
 /**
  * Query params schema for kanban claims
@@ -41,6 +41,10 @@ export const kanbanClaimsSchema = z.object({
 
     // Items per column (default: 10, max: 50)
     limitPerColumn: z.coerce.number().int().min(1).max(50).default(10),
+
+    // Single-column expansion
+    expandStatus: z.nativeEnum(ClaimStatus).optional(),
+    expandLimit: z.coerce.number().int().min(1).max(100).optional(),
   }),
 })
 

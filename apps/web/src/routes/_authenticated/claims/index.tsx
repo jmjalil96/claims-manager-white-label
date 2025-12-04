@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useSyncExternalStore } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { z } from 'zod'
 import { Plus } from 'lucide-react'
+import { formatDate } from '@/lib/utils'
 import {
   PageHeader,
   Button,
@@ -16,6 +17,9 @@ import {
   countActiveAdvancedFilters,
   type FilterChip,
   type FilterValues,
+  KanbanBoard,
+  KanbanEmptyState,
+  type KanbanColumn,
 } from '@/components/ui'
 import {
   useReactTable,
@@ -41,7 +45,9 @@ import {
   useKanbanClaims,
   claimsFilterConfig,
   ClaimCard,
-  KanbanBoard,
+  CLAIMS_KANBAN_COLUMNS,
+  getClaimStatusLabel,
+  getClaimStatusColor,
   type ClaimsQueryParams,
   type KanbanQueryParams,
   type ClaimsSortBy,
@@ -105,6 +111,11 @@ const claimsSearchSchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).optional().default(20),
   sortBy: z.enum(SORTABLE_COLUMNS).optional().default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
+  // Kanban-specific
+  limitPerColumn: z.coerce.number().int().min(10).max(100).optional().default(10),
+  // Single-column expansion (kanban)
+  expandStatus: z.string().optional(),
+  expandLimit: z.coerce.number().int().min(1).max(100).optional(),
 })
 
 type ClaimsSearch = z.infer<typeof claimsSearchSchema>
@@ -226,7 +237,10 @@ function ClaimsListPage() {
       settlementDateTo: searchParams.settlementDateTo,
       createdAtFrom: searchParams.createdAtFrom,
       createdAtTo: searchParams.createdAtTo,
-      limitPerColumn: 10,
+      limitPerColumn: searchParams.limitPerColumn ?? 10,
+      // Single-column expansion
+      expandStatus: searchParams.expandStatus,
+      expandLimit: searchParams.expandLimit,
     }),
     [searchParams]
   )
@@ -244,6 +258,18 @@ function ClaimsListPage() {
     isError: isKanbanError,
     refetch: refetchKanban,
   } = useKanbanClaims(kanbanQueryParams, { enabled: isKanbanView })
+
+  // Transform kanban data to generic KanbanBoard format
+  const kanbanBoardData = useMemo(() => {
+    if (!kanbanData) return {} as Record<ClaimStatus, KanbanColumn<ClaimListItemDto>>
+
+    return Object.fromEntries(
+      Object.entries(kanbanData.columns).map(([status, col]) => [
+        status,
+        { count: col.count, items: col.claims, hasMore: col.hasMore },
+      ])
+    ) as Record<ClaimStatus, KanbanColumn<ClaimListItemDto>>
+  }, [kanbanData])
 
   // Parse careType array from comma-separated string
   const careTypeFilter = useMemo(
@@ -464,11 +490,7 @@ function ClaimsListPage() {
         size: 150,
         cell: (info) => {
           const value = info.getValue()
-          return value ? (
-            new Date(value).toLocaleDateString()
-          ) : (
-            <span className="text-slate-400">—</span>
-          )
+          return value ? formatDate(value) : <span className="text-slate-400">—</span>
         },
         enableSorting: true,
       }),
@@ -477,11 +499,7 @@ function ClaimsListPage() {
         size: 160,
         cell: (info) => {
           const value = info.getValue()
-          return value ? (
-            new Date(value).toLocaleDateString()
-          ) : (
-            <span className="text-slate-400">—</span>
-          )
+          return value ? formatDate(value) : <span className="text-slate-400">—</span>
         },
         enableSorting: true,
       }),
@@ -490,11 +508,7 @@ function ClaimsListPage() {
         size: 160,
         cell: (info) => {
           const value = info.getValue()
-          return value ? (
-            new Date(value).toLocaleDateString()
-          ) : (
-            <span className="text-slate-400">—</span>
-          )
+          return value ? formatDate(value) : <span className="text-slate-400">—</span>
         },
         enableSorting: true,
       }),
@@ -503,7 +517,7 @@ function ClaimsListPage() {
       columnHelper.accessor('createdAt', {
         header: 'Creado',
         size: 120,
-        cell: (info) => new Date(info.getValue()).toLocaleDateString(),
+        cell: (info) => formatDate(info.getValue()),
         enableSorting: true,
       }),
 
@@ -564,31 +578,33 @@ function ClaimsListPage() {
   })
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Mis Reclamos"
-        subtitle="Gestiona y da seguimiento a tus solicitudes de reembolso"
-        breadcrumbs={[
-          { label: 'Inicio', href: '/dashboard' },
-          { label: 'Reclamos' },
-        ]}
-        actions={
-          <div className="flex items-center gap-3">
-            {!isMobile && (
-              <ViewToggle
-                value={(searchParams.view ?? 'list') as ViewMode}
-                onChange={(view) => updateSearch({ view })}
-              />
-            )}
-            <Button>
-              <Plus size={18} className="md:mr-2" />
-              <span className="hidden md:inline">Nuevo Reclamo</span>
-            </Button>
-          </div>
-        }
-      />
+    <div className="flex flex-col h-full min-h-0">
+      {/* Fixed header section */}
+      <div className="flex-shrink-0 space-y-6 mb-6">
+        <PageHeader
+          title="Mis Reclamos"
+          subtitle="Gestiona y da seguimiento a tus solicitudes de reembolso"
+          breadcrumbs={[
+            { label: 'Inicio', href: '/dashboard' },
+            { label: 'Reclamos' },
+          ]}
+          actions={
+            <div className="flex items-center gap-3">
+              {!isMobile && (
+                <ViewToggle
+                  value={(searchParams.view ?? 'list') as ViewMode}
+                  onChange={(view) => updateSearch({ view })}
+                />
+              )}
+              <Button>
+                <Plus size={18} className="md:mr-2" />
+                <span className="hidden md:inline">Nuevo Reclamo</span>
+              </Button>
+            </div>
+          }
+        />
 
-      <FilterBar
+        <FilterBar
         search={
           <SearchInput
             value={searchParams.search ?? ''}
@@ -626,6 +642,21 @@ function ClaimsListPage() {
         onMoreFilters={() => setAdvancedFiltersOpen(true)}
       />
 
+        {(isError || isKanbanError) && (
+          <Alert variant="error" title="Error al cargar reclamos">
+            <p>No se pudieron cargar los reclamos. Por favor intente nuevamente.</p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => void (isKanbanView ? refetchKanban() : refetch())}
+              className="mt-2"
+            >
+              Reintentar
+            </Button>
+          </Alert>
+        )}
+      </div>
+
       <AdvancedFiltersSheet
         open={advancedFiltersOpen}
         onOpenChange={setAdvancedFiltersOpen}
@@ -637,30 +668,36 @@ function ClaimsListPage() {
         mode={isMobile ? 'mobile' : 'desktop'}
       />
 
-      {(isError || isKanbanError) && (
-        <Alert variant="error" title="Error al cargar reclamos">
-          <p>No se pudieron cargar los reclamos. Por favor intente nuevamente.</p>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => void (isKanbanView ? refetchKanban() : refetch())}
-            className="mt-2"
-          >
-            Reintentar
-          </Button>
-        </Alert>
-      )}
-
       {/* Desktop: Table or Kanban view */}
-      <div className="hidden md:block">
+      <div className="hidden md:flex flex-1 min-h-0">
         {isKanbanView ? (
-          <KanbanBoard data={kanbanData} isLoading={isKanbanLoading} />
+          <KanbanBoard
+            columns={CLAIMS_KANBAN_COLUMNS}
+            data={kanbanBoardData}
+            renderCard={(claim) => <ClaimCard claim={claim} />}
+            getColumnLabel={getClaimStatusLabel}
+            getColumnColor={getClaimStatusColor}
+            keyExtractor={(claim) => claim.id}
+            isLoading={isKanbanLoading}
+            onLoadMore={(status) => {
+              const currentLimit =
+                searchParams.expandStatus === status
+                  ? (searchParams.expandLimit ?? searchParams.limitPerColumn ?? 10)
+                  : (searchParams.limitPerColumn ?? 10)
+
+              updateSearch({
+                expandStatus: status,
+                expandLimit: currentLimit + 10,
+              })
+            }}
+            loadMoreLabel={(n) => `Ver ${n} más`}
+            emptyState={<KanbanEmptyState message="Sin reclamos" />}
+          />
         ) : (
           <DataTable
             table={table}
             isLoading={isLoading}
             minWidth={2100}
-            maxHeight="calc(100vh - 14rem)"
             pagination={<DataTablePagination table={table} />}
           />
         )}

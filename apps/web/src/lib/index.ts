@@ -3,3 +3,4 @@ export { authClient, signIn, signOut, signUp, forgetPassword, resetPassword, use
 export { queryClient } from './query-client'
 export { toast } from './toast'
 export { cn } from './utils'
+export { zodFieldValidator } from './validation'

@@ -70,7 +70,7 @@ function AuthenticatedLayout() {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen bg-background">
+      <div className="flex h-screen overflow-hidden bg-background">
         {/* Mobile Header */}
         <SidebarMobileHeader>
           <SidebarWordmark />
@@ -101,8 +101,8 @@ function AuthenticatedLayout() {
         </SidebarMobileDrawer>
 
         {/* Main Content */}
-        <main className="flex-1 min-w-0 pt-14 lg:pt-0">
-          <div className="p-8">
+        <main className="flex-1 min-w-0 min-h-0 pt-14 lg:pt-0 flex flex-col overflow-hidden">
+          <div className="flex-1 min-h-0 p-8 overflow-y-auto">
             <Outlet />
           </div>
         </main>

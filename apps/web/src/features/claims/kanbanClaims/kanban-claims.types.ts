@@ -24,4 +24,8 @@ export interface KanbanQueryParams {
 
   // Items per column (default: 10, max: 50)
   limitPerColumn?: number
+
+  // Single-column expansion
+  expandStatus?: string
+  expandLimit?: number
 }

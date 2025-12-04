@@ -24,7 +24,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
       <aside
         ref={ref}
         className={cn(
-          'relative hidden lg:flex h-screen flex-col justify-between border-r border-gray-800 bg-slate-900 p-4 transition-[width] duration-200 ease-in-out',
+          'relative hidden lg:flex flex-col flex-shrink-0 justify-between border-r border-gray-800 bg-slate-900 p-4 transition-[width] duration-200 ease-in-out',
           collapsed ? 'w-[72px]' : 'w-64',
           className
         )}

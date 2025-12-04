@@ -182,6 +182,11 @@ export interface ClaimDetailDto {
   affiliateId: string
   patientId: string
   policyId: string | null
+  // Denormalized names (read-only, for display)
+  clientName: string
+  affiliateName: string
+  patientName: string
+  policyNumber: string | null
   careType: CareType | null
   description: string | null
   diagnosisCode: string | null
@@ -393,6 +398,7 @@ export interface KanbanColumnDto {
   status: ClaimStatus
   count: number
   claims: ClaimListItemDto[]
+  hasMore: boolean
 }
 
 /** Response shape for GET /api/claims/kanban */

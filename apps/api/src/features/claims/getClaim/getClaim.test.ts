@@ -145,6 +145,14 @@ describe('Get Claim Response Format', () => {
     expect(result).toHaveProperty('clientId')
     expect(result).toHaveProperty('affiliateId')
     expect(result).toHaveProperty('patientId')
+    // Denormalized names
+    expect(result).toHaveProperty('clientName')
+    expect(result).toHaveProperty('affiliateName')
+    expect(result).toHaveProperty('patientName')
+    expect(result).toHaveProperty('policyNumber')
+    expect(typeof result.clientName).toBe('string')
+    expect(typeof result.affiliateName).toBe('string')
+    expect(typeof result.patientName).toBe('string')
     expect(result).toHaveProperty('createdAt')
     expect(result).toHaveProperty('updatedAt')
     expect(typeof result.createdAt).toBe('string') // ISO string
