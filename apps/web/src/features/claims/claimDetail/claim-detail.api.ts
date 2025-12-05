@@ -1,5 +1,10 @@
 import { apiClient } from '@/lib/api-client'
-import type { GetClaimResponse, UpdateClaimRequestDto, UpdateClaimResponse } from '@claims/shared'
+import type {
+  GetClaimResponse,
+  UpdateClaimRequestDto,
+  UpdateClaimResponse,
+  ListClaimPoliciesResponse,
+} from '@claims/shared'
 
 export async function fetchClaimDetail(id: string): Promise<GetClaimResponse> {
   return apiClient<GetClaimResponse>(`/claims/${id}`)
@@ -13,4 +18,8 @@ export async function updateClaimField(
     method: 'PATCH',
     body: JSON.stringify(data),
   })
+}
+
+export async function fetchClaimPolicies(claimId: string): Promise<ListClaimPoliciesResponse> {
+  return apiClient<ListClaimPoliciesResponse>(`/claims/${claimId}/policies`)
 }

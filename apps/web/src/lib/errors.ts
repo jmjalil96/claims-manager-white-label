@@ -8,7 +8,18 @@ export class ApiError extends Error {
     public statusText: string,
     public data?: unknown
   ) {
-    super(`${status}: ${statusText}`)
+    // Extract message from API response body, fallback to status text
+    // API returns { error: "...", code: "...", requestId: "..." }
+    const message =
+      data && typeof data === 'object'
+        ? ('error' in data && typeof data.error === 'string'
+            ? data.error
+            : 'message' in data && typeof data.message === 'string'
+              ? data.message
+              : `${status}: ${statusText}`)
+        : `${status}: ${statusText}`
+
+    super(message)
     this.name = 'ApiError'
   }
 

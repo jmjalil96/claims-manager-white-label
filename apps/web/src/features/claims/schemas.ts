@@ -11,6 +11,7 @@ export const claimFieldSchemas = {
   status: z.nativeEnum(ClaimStatus),
 
   // DRAFT editable fields
+  policyId: z.string().cuid('ID de póliza inválido').nullable(),
   description: z.string().max(1000, 'Máximo 1000 caracteres').nullable(),
   careType: z.nativeEnum(CareType).nullable(),
   diagnosisCode: z.string().max(20, 'Máximo 20 caracteres').nullable(),
@@ -68,3 +69,42 @@ export const editClaimSchema = z.object({
 })
 
 export type EditClaimInput = z.infer<typeof editClaimSchema>
+
+// =============================================================================
+// CREATE CLAIM SCHEMA
+// =============================================================================
+
+export const createClaimSchema = z.object({
+  clientId: z.string().cuid('ID de cliente inválido'),
+  affiliateId: z.string().cuid('ID de afiliado inválido'),
+  patientId: z.string().cuid('ID de paciente inválido'),
+  description: z.string().min(1, 'La descripción es requerida').max(1000, 'Máximo 1000 caracteres'),
+})
+
+export type CreateClaimInput = z.infer<typeof createClaimSchema>
+
+// =============================================================================
+// INVOICE SCHEMAS
+// =============================================================================
+
+export const invoiceFieldSchemas = {
+  invoiceNumber: z.string().min(1, 'Requerido').max(100, 'Máximo 100 caracteres'),
+  providerName: z.string().min(1, 'Requerido').max(200, 'Máximo 200 caracteres'),
+  amountSubmitted: z.number().positive('Debe ser mayor a 0'),
+}
+
+export const createInvoiceSchema = z.object({
+  invoiceNumber: invoiceFieldSchemas.invoiceNumber,
+  providerName: invoiceFieldSchemas.providerName,
+  amountSubmitted: invoiceFieldSchemas.amountSubmitted,
+})
+
+export type CreateInvoiceInput = z.infer<typeof createInvoiceSchema>
+
+export const editInvoiceSchema = z.object({
+  invoiceNumber: invoiceFieldSchemas.invoiceNumber.optional(),
+  providerName: invoiceFieldSchemas.providerName.optional(),
+  amountSubmitted: invoiceFieldSchemas.amountSubmitted.optional(),
+})
+
+export type EditInvoiceInput = z.infer<typeof editInvoiceSchema>

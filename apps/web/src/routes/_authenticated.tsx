@@ -20,6 +20,7 @@ import {
 import {
   LayoutDashboard,
   Folder,
+  FilePlus,
   Users,
   Stethoscope,
   PieChart,
@@ -50,7 +51,10 @@ function AuthenticatedLayout() {
       <SidebarNavItem to="/dashboard" icon={LayoutDashboard} exact>
         Dashboard
       </SidebarNavItem>
-      <SidebarNavItem to="/claims" icon={Folder}>
+      <SidebarNavItem to="/claims/new" icon={FilePlus} exact>
+        New Claim
+      </SidebarNavItem>
+      <SidebarNavItem to="/claims" icon={Folder} excludePaths={['/claims/new']}>
         Claims
       </SidebarNavItem>
       <SidebarNavItem to="/patients" icon={Users}>

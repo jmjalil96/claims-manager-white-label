@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useSyncExternalStore } from 'react'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
 import { z } from 'zod'
 import { Plus } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
@@ -111,9 +111,9 @@ const claimsSearchSchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).optional().default(20),
   sortBy: z.enum(SORTABLE_COLUMNS).optional().default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
-  // Kanban-specific
-  limitPerColumn: z.coerce.number().int().min(10).max(100).optional().default(10),
-  // Single-column expansion (kanban)
+  // Kanban-specific (must match backend: min 1, max 50)
+  limitPerColumn: z.coerce.number().int().min(1).max(50).optional().default(10),
+  // Single-column expansion (kanban) - max 100 per backend
   expandStatus: z.string().optional(),
   expandLimit: z.coerce.number().int().min(1).max(100).optional(),
 })
@@ -596,10 +596,13 @@ function ClaimsListPage() {
                   onChange={(view) => updateSearch({ view })}
                 />
               )}
-              <Button>
+              <Link
+                to="/claims/new"
+                className="inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 bg-teal-600 text-white hover:bg-teal-700 h-10 px-4 text-sm"
+              >
                 <Plus size={18} className="md:mr-2" />
                 <span className="hidden md:inline">Nuevo Reclamo</span>
-              </Button>
+              </Link>
             </div>
           }
         />
@@ -687,7 +690,7 @@ function ClaimsListPage() {
 
               updateSearch({
                 expandStatus: status,
-                expandLimit: currentLimit + 10,
+                expandLimit: Math.min(currentLimit + 10, 100), // Cap at 100 per backend
               })
             }}
             loadMoreLabel={(n) => `Ver ${n} más`}

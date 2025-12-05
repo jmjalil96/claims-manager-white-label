@@ -18,24 +18,28 @@ import { getAvailableAffiliatesRouter } from './createClaim/getAvailableAffiliat
 import { getAvailablePatientsRouter } from './createClaim/getAvailablePatients/getAvailablePatients.route.js'
 import { invoicesRouter } from './invoices/index.js'
 import { filesRouter } from './files/index.js'
+import { listClaimPoliciesRouter } from './listClaimPolicies/listClaimPolicies.route.js'
 
 const router = Router()
+
+// Mount lookup routes FIRST (before :id routes)
+router.use(getAvailableClientsRouter)
+router.use(getAvailableAffiliatesRouter)
+router.use(getAvailablePatientsRouter)
 
 // Mount claim routes
 router.use(listClaimsRouter)
 router.use(kanbanClaimsRouter)
+router.use(getUploadUrlRouter)
+router.use(createClaimRouter)
+
+// Mount :id routes AFTER specific paths
 router.use(getClaimRouter)
 router.use(getClaimAuditRouter)
 router.use(getClaimSlaRouter)
-router.use(getUploadUrlRouter)
-router.use(createClaimRouter)
+router.use(listClaimPoliciesRouter)
 router.use(editClaimRouter)
 router.use(deleteClaimRouter)
-
-// Mount lookup routes for create claim form
-router.use(getAvailableClientsRouter)
-router.use(getAvailableAffiliatesRouter)
-router.use(getAvailablePatientsRouter)
 
 // Mount nested resource routes
 router.use('/:claimId/invoices', invoicesRouter)

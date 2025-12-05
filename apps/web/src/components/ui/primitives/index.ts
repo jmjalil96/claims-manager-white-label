@@ -14,3 +14,6 @@ export { Spinner } from './spinner'
 
 export { PasswordInput } from './password-input'
 export type { PasswordInputProps } from './password-input'
+
+export { Textarea, textareaVariants } from './textarea'
+export type { TextareaProps } from './textarea'

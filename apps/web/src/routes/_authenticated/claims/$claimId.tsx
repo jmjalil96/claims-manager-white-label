@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { FileText, DollarSign, ClipboardCheck, Info, Folder, History, Loader2, Users } from 'lucide-react'
+import { FileText, DollarSign, ClipboardCheck, Info, Folder, History, Loader2, Users, Clock, Receipt } from 'lucide-react'
 import {
   Tabs,
   TabsList,
@@ -12,16 +12,18 @@ import {
   EditableSelect,
   EditableTextarea,
   EditableDate,
+  EditableCombobox,
   ReadOnlyLink,
   Alert,
 } from '@/components/ui'
-import { ClaimDetailHeader, ClaimWorkflowStepper } from '@/features/claims/components'
-import { useClaimDetail, useUpdateClaimField, claimFieldSchemas } from '@/features/claims'
+import { ClaimDetailHeader, ClaimWorkflowStepper, ClaimFilesTab, ClaimHistoryTab, ClaimSlaTab, ClaimInvoicesTab } from '@/features/claims/components'
+import { useClaimDetail, useUpdateClaimField, useClaimPolicies, claimFieldSchemas } from '@/features/claims'
 import { CareType, CareTypeLabel } from '@claims/shared'
 import type { ClaimStatus } from '@claims/shared'
 import type { UpdateClaimRequestDto } from '@claims/shared'
 import { zodFieldValidator, toast } from '@/lib'
 import type { SelectOption } from '@/components/ui/editable-field'
+import type { ComboboxOption } from '@/components/ui/combobox'
 
 export const Route = createFileRoute('/_authenticated/claims/$claimId')({
   component: ClaimDetailPage,
@@ -50,6 +52,17 @@ function ClaimDetailPage() {
 
   const { data, isLoading, isError, error } = useClaimDetail(claimId)
   const updateMutation = useUpdateClaimField(claimId)
+  const { data: policiesData, isLoading: loadingPolicies } = useClaimPolicies(claimId)
+
+  const policyOptions: ComboboxOption[] = useMemo(
+    () =>
+      policiesData?.policies.map((p) => ({
+        value: p.id,
+        label: p.policyNumber,
+        description: `${p.insurer.name} • ${p.status}`,
+      })) ?? [],
+    [policiesData]
+  )
 
   const handleFieldSave = async <K extends keyof UpdateClaimRequestDto>(
     field: K,
@@ -64,7 +77,10 @@ function ClaimDetailPage() {
       { status: toStatus },
       {
         onSuccess: () => toast.success('Estado actualizado correctamente'),
-        onError: () => toast.error('Error al actualizar el estado'),
+        onError: (error) => {
+          const message = error instanceof Error ? error.message : 'Error al actualizar el estado'
+          toast.error(message)
+        },
       }
     )
   }
@@ -102,11 +118,17 @@ function ClaimDetailPage() {
             <TabsTrigger value="info" icon={<Info className="size-4" />}>
               Información
             </TabsTrigger>
+            <TabsTrigger value="invoices" icon={<Receipt className="size-4" />}>
+              Facturas
+            </TabsTrigger>
             <TabsTrigger value="files" icon={<Folder className="size-4" />}>
               Archivos
             </TabsTrigger>
             <TabsTrigger value="history" icon={<History className="size-4" />}>
               Historial
+            </TabsTrigger>
+            <TabsTrigger value="sla" icon={<Clock className="size-4" />}>
+              SLA
             </TabsTrigger>
           </TabsList>
         </ClaimDetailHeader>
@@ -141,11 +163,19 @@ function ClaimDetailPage() {
                 value={claim.patientName}
                 href={`/affiliates/${claim.patientId}`}
               />
-              <ReadOnlyLink
+              <EditableCombobox
                 label="Póliza"
-                value={claim.policyNumber}
-                href={claim.policyId ? `/policies/${claim.policyId}` : undefined}
+                value={claim.policyId}
+                options={policyOptions}
+                onSave={(value) => handleFieldSave('policyId', value)}
+                placeholder="Seleccionar póliza..."
+                searchPlaceholder="Buscar póliza..."
                 emptyText="Sin póliza asignada"
+                emptyMessage="No se encontraron pólizas"
+                clearLabel="Sin póliza"
+                loading={loadingPolicies}
+                validate={zodFieldValidator(claimFieldSchemas.policyId)}
+                getHref={(policyId) => `/policies/${policyId}`}
               />
             </DetailSection>
 
@@ -318,20 +348,20 @@ function ClaimDetailPage() {
             </DetailSection>
           </TabsContent>
 
+          <TabsContent value="invoices" className="mt-8">
+            <ClaimInvoicesTab claimId={claimId} claimAmountSubmitted={claim.amountSubmitted ?? undefined} />
+          </TabsContent>
+
           <TabsContent value="files" className="mt-8">
-            <div className="rounded-xl bg-white shadow-sm ring-1 ring-slate-900/5 border-dashed border-2 border-slate-200 p-12 text-center">
-              <Folder className="size-12 mx-auto text-slate-400 mb-4" />
-              <h3 className="text-lg font-medium text-slate-700 mb-2">Archivos</h3>
-              <p className="text-sm text-slate-500">Próximamente</p>
-            </div>
+            <ClaimFilesTab claimId={claimId} />
           </TabsContent>
 
           <TabsContent value="history" className="mt-8">
-            <div className="rounded-xl bg-white shadow-sm ring-1 ring-slate-900/5 border-dashed border-2 border-slate-200 p-12 text-center">
-              <History className="size-12 mx-auto text-slate-400 mb-4" />
-              <h3 className="text-lg font-medium text-slate-700 mb-2">Historial</h3>
-              <p className="text-sm text-slate-500">Próximamente</p>
-            </div>
+            <ClaimHistoryTab claimId={claimId} />
+          </TabsContent>
+
+          <TabsContent value="sla" className="mt-8">
+            <ClaimSlaTab claimId={claimId} />
           </TabsContent>
           </div>
         </div>

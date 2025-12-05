@@ -20,6 +20,8 @@ export interface EditableFieldWrapperProps {
   children: React.ReactNode
   displayValue: React.ReactNode
   className?: string
+  /** When true, this field handles its own outside-click cancellation (e.g., portal-based components) */
+  disableOutsideCancel?: boolean
 }
 
 /* -----------------------------------------------------------------------------
@@ -42,14 +44,15 @@ export const EditableFieldWrapper = React.forwardRef<HTMLDivElement, EditableFie
       children,
       displayValue,
       className,
+      disableOutsideCancel = false,
     },
     ref
   ) => {
     const wrapperRef = React.useRef<HTMLDivElement>(null)
 
-    // Handle click outside to cancel
+    // Handle click outside to cancel (skip for portal-based components that handle their own dismissal)
     React.useEffect(() => {
-      if (!isEditing) return
+      if (!isEditing || disableOutsideCancel) return
 
       const handleClickOutside = (event: MouseEvent) => {
         if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
@@ -66,7 +69,7 @@ export const EditableFieldWrapper = React.forwardRef<HTMLDivElement, EditableFie
         clearTimeout(timeoutId)
         document.removeEventListener('mousedown', handleClickOutside)
       }
-    }, [isEditing, onCancel])
+    }, [isEditing, onCancel, disableOutsideCancel])
 
     // Handle keyboard events
     const handleKeyDown = (event: React.KeyboardEvent) => {

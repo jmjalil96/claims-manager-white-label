@@ -19,5 +19,8 @@ export type { EditableTextareaProps } from './editable-textarea'
 export { EditableDate } from './editable-date'
 export type { EditableDateProps } from './editable-date'
 
+export { EditableCombobox } from './editable-combobox'
+export type { EditableComboboxProps } from './editable-combobox'
+
 export { ReadOnlyLink } from './readonly-link'
 export type { ReadOnlyLinkProps } from './readonly-link'

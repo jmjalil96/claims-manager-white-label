@@ -2,7 +2,7 @@
  * Claims module DTOs - shared between API and web
  */
 
-import type { ClaimStatus, CareType, AffiliateType, ClaimFileCategory } from '../enums/index.js'
+import type { ClaimStatus, CareType, AffiliateType, ClaimFileCategory, PolicyStatus } from '../enums/index.js'
 import type { PaginationMeta } from '../common/pagination.js'
 
 // =============================================================================
@@ -404,4 +404,27 @@ export interface KanbanColumnDto {
 /** Response shape for GET /api/claims/kanban */
 export interface KanbanClaimsResponse {
   columns: Record<ClaimStatus, KanbanColumnDto>
+}
+
+// =============================================================================
+// CLAIM POLICIES (for policy dropdown in claim detail)
+// =============================================================================
+
+/** Policy item for dropdown/selector */
+export interface PolicyDto {
+  id: string
+  policyNumber: string
+  type: string | null
+  status: PolicyStatus
+  startDate: string
+  endDate: string
+  insurer: {
+    id: string
+    name: string
+  }
+}
+
+/** Response shape for GET /api/claims/:claimId/policies */
+export interface ListClaimPoliciesResponse {
+  policies: PolicyDto[]
 }

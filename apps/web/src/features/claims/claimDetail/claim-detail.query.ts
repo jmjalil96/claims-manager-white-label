@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { fetchClaimDetail, updateClaimField } from './claim-detail.api'
-import { claimsKeys } from '../query-keys'
+import { fetchClaimDetail, updateClaimField, fetchClaimPolicies } from './claim-detail.api'
+import { claimsKeys, lookupKeys } from '../query-keys'
 import type { UpdateClaimRequestDto } from '@claims/shared'
 
 export function useClaimDetail(id: string) {
@@ -20,5 +20,16 @@ export function useUpdateClaimField(id: string) {
       void queryClient.invalidateQueries({ queryKey: claimsKeys.lists() })
       void queryClient.invalidateQueries({ queryKey: claimsKeys.kanban() })
     },
+    onError: (error) => {
+      console.error('Failed to update claim field:', error)
+    },
+  })
+}
+
+export function useClaimPolicies(claimId: string) {
+  return useQuery({
+    queryKey: lookupKeys.policies(claimId),
+    queryFn: () => fetchClaimPolicies(claimId),
+    staleTime: 5 * 60 * 1000, // 5 minutes cache
   })
 }

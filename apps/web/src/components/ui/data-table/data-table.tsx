@@ -34,7 +34,7 @@ export function DataTable<TData>({
   return (
     <div
       className={cn(
-        'flex flex-col rounded-lg border border-slate-200 overflow-hidden bg-white',
+        'flex flex-col w-full rounded-lg border border-slate-200 overflow-hidden bg-white',
         !maxHeight && 'flex-1 min-h-0'
       )}
       style={{ maxHeight }}
@@ -42,7 +42,7 @@ export function DataTable<TData>({
       {/* Scrollable table area */}
       <div className="flex-1 overflow-auto min-h-0">
         <table
-          className="text-sm"
+          className="w-full text-sm"
           style={{ minWidth: `${minWidth}px` }}
           role="grid"
           aria-busy={isLoading}

@@ -220,14 +220,17 @@ interface SidebarNavItemProps
   icon: LucideIcon
   children: React.ReactNode
   exact?: boolean
+  excludePaths?: string[]
 }
 
 const SidebarNavItem = React.forwardRef<HTMLAnchorElement, SidebarNavItemProps>(
-  ({ className, to, icon: Icon, children, exact = false, ...props }, ref) => {
+  ({ className, to, icon: Icon, children, exact = false, excludePaths, ...props }, ref) => {
     const { collapsed } = useSidebar()
     const location = useLocation()
 
-    const isActive = exact ? location.pathname === to : location.pathname.startsWith(to)
+    const isActive = exact
+      ? location.pathname === to
+      : location.pathname.startsWith(to) && !excludePaths?.some(path => location.pathname.startsWith(path))
 
     const link = (
       <Link
