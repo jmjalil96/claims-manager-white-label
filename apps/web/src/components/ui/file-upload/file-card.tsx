@@ -1,19 +1,35 @@
 import { FileText, Image, Download, Trash2, Loader2 } from 'lucide-react'
-import type { ClaimFileDto } from '@claims/shared'
-import type { ClaimFileCategory } from '@claims/shared'
+import type { ClaimFileDto, PolicyFileDto, ClaimFileCategory, PolicyFileCategory } from '@claims/shared'
 import { cn } from '@/lib/utils'
+import { ClaimFileCategoryLabel, PolicyFileCategoryLabel, type FileCategory } from './file-list'
 
-const ClaimFileCategoryLabel: Record<ClaimFileCategory, string> = {
-  RECEIPT: 'Recibo',
-  PRESCRIPTION: 'Receta',
-  LAB_REPORT: 'Laboratorio',
-  DISCHARGE_SUMMARY: 'Egreso',
-  AUTHORIZATION: 'Autorización',
-  OTHER: 'Otro',
+// Generic file type that works for both Claim and Policy files
+export type GenericFileDto = {
+  id: string
+  fileId: string
+  originalName: string
+  mimeType: string
+  fileSize: number
+  category: FileCategory | null
+  description: string | null
+  uploadedById: string
+  uploadedAt: string
+  downloadUrl: string
+}
+
+// Get label for any category type
+function getCategoryLabel(category: FileCategory): string {
+  if (category in ClaimFileCategoryLabel) {
+    return ClaimFileCategoryLabel[category as ClaimFileCategory]
+  }
+  if (category in PolicyFileCategoryLabel) {
+    return PolicyFileCategoryLabel[category as PolicyFileCategory]
+  }
+  return category
 }
 
 export interface FileCardProps {
-  file: ClaimFileDto
+  file: ClaimFileDto | PolicyFileDto | GenericFileDto
   onDelete?: () => void
   isDeleting?: boolean
   className?: string
@@ -38,7 +54,7 @@ export function FileCard({
       {file.category && (
         <div className="absolute top-3 left-3 z-10">
           <span className="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-white/90 backdrop-blur text-slate-700 shadow-sm border border-slate-100">
-            {ClaimFileCategoryLabel[file.category]}
+            {getCategoryLabel(file.category)}
           </span>
         </div>
       )}

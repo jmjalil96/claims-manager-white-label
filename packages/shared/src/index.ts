@@ -10,3 +10,4 @@ export * from './common/index.js'
 
 // Feature DTOs
 export * from './claims/index.js'
+export * from './policies/index.js'

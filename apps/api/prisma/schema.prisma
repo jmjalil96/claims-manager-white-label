@@ -25,16 +25,17 @@ model User {
 
   clientAccess UserClient[]
 
-  createdClaims    Claim[]          @relation("ClaimCreator")
-  updatedClaims    Claim[]          @relation("ClaimUpdater")
-  claimInvoices    ClaimInvoice[]
-  claimReprocesses ClaimReprocess[]
-  createdTickets   Ticket[]         @relation("TicketCreator")
-  reportedTickets  Ticket[]         @relation("TicketReporter")
-  assignedTickets  Ticket[]         @relation("TicketAssignee")
-  ticketMessages   TicketMessage[]
-  notifications    Notification[]
-  auditLogs        AuditLog[]
+  createdClaims     Claim[]            @relation("ClaimCreator")
+  updatedClaims     Claim[]            @relation("ClaimUpdater")
+  claimInvoices     ClaimInvoice[]
+  claimReprocesses  ClaimReprocess[]
+  policyExpirations PolicyExpiration[]
+  createdTickets    Ticket[]           @relation("TicketCreator")
+  reportedTickets   Ticket[]           @relation("TicketReporter")
+  assignedTickets   Ticket[]           @relation("TicketAssignee")
+  ticketMessages    TicketMessage[]
+  notifications     Notification[]
+  auditLogs         AuditLog[]
 
   uploadedFiles  File[]
   documentGrants DocumentAccess[]
@@ -137,6 +138,7 @@ model Client {
   tickets        Ticket[]
   auditLogs      AuditLog[]
   files          File[]
+  clientFiles    ClientFile[]
   documentAccess DocumentAccess[]
 
   @@index([name])
@@ -151,7 +153,7 @@ model Insurer {
   phone   String?
   website String?
 
-  billingCutoffDay Int @default(25)
+  taxRate Float?
 
   isActive Boolean @default(true)
 
@@ -160,6 +162,7 @@ model Insurer {
 
   policies Policy[]
   invoices Invoice[]
+  files    InsurerFile[]
 
   @@index([name])
   @@index([code])
@@ -168,15 +171,15 @@ model Insurer {
 
 model Policy {
   id           String @id @default(cuid())
-  policyNumber String @unique
+  policyNumber String
 
   clientId  String
   client    Client  @relation(fields: [clientId], references: [id])
   insurerId String
   insurer   Insurer @relation(fields: [insurerId], references: [id])
 
-  type   String?
-  status PolicyStatus @default(ACTIVE)
+  type   PolicyType?
+  status PolicyStatus @default(PENDING)
 
   startDate DateTime
   endDate   DateTime
@@ -189,18 +192,24 @@ model Policy {
   tplus1Premium Float?
   tplusfPremium Float?
 
-  taxRate         Float?
-  additionalCosts Float?
+  benefitsCost Float?
 
   isActive Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Cancellation tracking
+  cancellationReason String?
+  cancelledAt        DateTime?
+
   affiliates      PolicyAffiliate[]
   claims          Claim[]
   invoicePolicies InvoicePolicy[]
+  files           PolicyFile[]
+  expirations     PolicyExpiration[]
 
+  @@unique([policyNumber, insurerId])
   @@index([policyNumber])
   @@index([clientId])
   @@index([insurerId])
@@ -297,6 +306,28 @@ model PolicyAffiliate {
   @@index([policyId, addedAt])
   @@index([policyId, removedAt])
 }
+
+model PolicyExpiration {
+  id String @id @default(cuid())
+
+  policyId String
+  policy   Policy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+
+  expirationReason String
+  expiredAt        DateTime @default(now())
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([policyId])
+  @@index([createdById])
+}
+
+// ============================================================================
+// EMPLOYEES & AGENTS
+// ============================================================================
 
 model Employee {
   id String @id @default(cuid())
@@ -616,6 +647,9 @@ model File {
   claimFile   ClaimFile?
   invoiceFile InvoiceFile?
   ticketFile  TicketFile?
+  policyFile  PolicyFile?
+  insurerFile InsurerFile?
+  clientFile  ClientFile?
   document    Document?
 
   @@index([entityType, entityId])
@@ -639,7 +673,7 @@ model ClaimFile {
 
   category     ClaimFileCategory?
   description  String?
-  displayOrder Int @default(0)
+  displayOrder Int                @default(0)
 
   createdAt DateTime @default(now())
 
@@ -657,7 +691,7 @@ model InvoiceFile {
 
   category     InvoiceFileCategory?
   description  String?
-  displayOrder Int @default(0)
+  displayOrder Int                  @default(0)
 
   createdAt DateTime @default(now())
 
@@ -678,6 +712,60 @@ model TicketFile {
   createdAt DateTime @default(now())
 
   @@index([messageId])
+}
+
+model PolicyFile {
+  id String @id @default(cuid())
+
+  fileId   String @unique
+  file     File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  policyId String
+  policy   Policy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+
+  category     PolicyFileCategory?
+  description  String?
+  displayOrder Int                 @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([policyId])
+  @@index([category])
+}
+
+model InsurerFile {
+  id String @id @default(cuid())
+
+  fileId    String  @unique
+  file      File    @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  insurerId String
+  insurer   Insurer @relation(fields: [insurerId], references: [id], onDelete: Cascade)
+
+  category     InsurerFileCategory?
+  description  String?
+  displayOrder Int                  @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([insurerId])
+  @@index([category])
+}
+
+model ClientFile {
+  id String @id @default(cuid())
+
+  fileId   String @unique
+  file     File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  category     ClientFileCategory?
+  description  String?
+  displayOrder Int                 @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([clientId])
+  @@index([category])
 }
 
 // ============================================================================
@@ -818,6 +906,12 @@ model Invitation {
 // ENUMS
 // ============================================================================
 
+enum CoverageType {
+  T
+  TPLUS1
+  TPLUSF
+}
+
 enum PolicyStatus {
   ACTIVE
   PENDING
@@ -825,15 +919,17 @@ enum PolicyStatus {
   CANCELLED
 }
 
+enum PolicyType {
+  HEALTH
+  LIFE
+  DENTAL
+  VISION
+  DISABILITY
+}
+
 enum AffiliateType {
   OWNER
   DEPENDENT
-}
-
-enum CoverageType {
-  T
-  TPLUS1
-  TPLUSF
 }
 
 enum ClaimStatus {
@@ -905,6 +1001,9 @@ enum FileEntityType {
   CLAIM
   INVOICE
   TICKET
+  POLICY
+  INSURER
+  CLIENT
   DOCUMENT
 }
 
@@ -924,3 +1023,26 @@ enum InvoiceFileCategory {
   SUPPORTING_DOC
   OTHER
 }
+
+enum PolicyFileCategory {
+  CONTRACT
+  AMENDMENT
+  CERTIFICATE
+  TERMS_CONDITIONS
+  OTHER
+}
+
+enum InsurerFileCategory {
+  CONTRACT
+  RATE_SHEET
+  LOGO
+  OTHER
+}
+
+enum ClientFileCategory {
+  CONTRACT
+  TAX_DOCUMENT
+  LOGO
+  OTHER
+}
+

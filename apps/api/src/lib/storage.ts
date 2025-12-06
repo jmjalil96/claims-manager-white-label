@@ -39,7 +39,7 @@ const BUCKET_NAME = env.R2_BUCKET_NAME
 // STORAGE KEY GENERATION
 // =============================================================================
 
-export type StorageFolder = 'claims' | 'invoices' | 'tickets' | 'documents'
+export type StorageFolder = 'claims' | 'invoices' | 'tickets' | 'documents' | 'policies'
 
 /**
  * Generate a unique storage key for a file

@@ -56,6 +56,15 @@ export const PolicyStatus = {
 } as const
 export type PolicyStatus = (typeof PolicyStatus)[keyof typeof PolicyStatus]
 
+export const PolicyType = {
+  HEALTH: 'HEALTH',
+  LIFE: 'LIFE',
+  DENTAL: 'DENTAL',
+  VISION: 'VISION',
+  DISABILITY: 'DISABILITY',
+} as const
+export type PolicyType = (typeof PolicyType)[keyof typeof PolicyType]
+
 // =============================================================================
 // INVOICES
 // =============================================================================
@@ -134,6 +143,9 @@ export const FileEntityType = {
   CLAIM: 'CLAIM',
   INVOICE: 'INVOICE',
   TICKET: 'TICKET',
+  POLICY: 'POLICY',
+  INSURER: 'INSURER',
+  CLIENT: 'CLIENT',
   DOCUMENT: 'DOCUMENT',
 } as const
 export type FileEntityType = (typeof FileEntityType)[keyof typeof FileEntityType]
@@ -156,6 +168,32 @@ export const InvoiceFileCategory = {
   OTHER: 'OTHER',
 } as const
 export type InvoiceFileCategory = (typeof InvoiceFileCategory)[keyof typeof InvoiceFileCategory]
+
+export const PolicyFileCategory = {
+  CONTRACT: 'CONTRACT',
+  AMENDMENT: 'AMENDMENT',
+  CERTIFICATE: 'CERTIFICATE',
+  TERMS_CONDITIONS: 'TERMS_CONDITIONS',
+  OTHER: 'OTHER',
+} as const
+export type PolicyFileCategory = (typeof PolicyFileCategory)[keyof typeof PolicyFileCategory]
+
+export const InsurerFileCategory = {
+  CONTRACT: 'CONTRACT',
+  RATE_SHEET: 'RATE_SHEET',
+  LOGO: 'LOGO',
+  OTHER: 'OTHER',
+} as const
+export type InsurerFileCategory = (typeof InsurerFileCategory)[keyof typeof InsurerFileCategory]
+
+export const ClientFileCategory = {
+  CONTRACT: 'CONTRACT',
+  TAX_DOCUMENT: 'TAX_DOCUMENT',
+  LOGO: 'LOGO',
+  OTHER: 'OTHER',
+} as const
+export type ClientFileCategory = (typeof ClientFileCategory)[keyof typeof ClientFileCategory]
+
 
 // =============================================================================
 // LABELS (Spanish UI strings)

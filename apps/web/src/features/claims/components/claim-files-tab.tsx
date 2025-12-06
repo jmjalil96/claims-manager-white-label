@@ -8,6 +8,14 @@ import {
   FileCard,
   UploadingFileCard,
   type UploadingFile,
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
 } from '@/components/ui'
 import { toast } from '@/lib'
 import {
@@ -28,6 +36,7 @@ export function ClaimFilesTab({ claimId }: ClaimFilesTabProps) {
   // Local state for files being uploaded
   const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([])
   const [deletingFileId, setDeletingFileId] = useState<string | null>(null)
+  const [deleteConfirm, setDeleteConfirm] = useState<ClaimFileDto | null>(null)
 
   const existingFiles = data?.files ?? []
   const totalFileCount = existingFiles.length + uploadingFiles.length
@@ -147,10 +156,12 @@ export function ClaimFilesTab({ claimId }: ClaimFilesTabProps) {
     []
   )
 
-  // Handle deleting an existing file
-  const handleDeleteFile = useCallback(async (file: ClaimFileDto) => {
-    if (deletingFileId) return // Prevent double-delete
+  // Handle deleting an existing file (called after confirmation)
+  const handleDeleteFile = useCallback(async () => {
+    if (!deleteConfirm || deletingFileId) return // Prevent double-delete
 
+    const file = deleteConfirm
+    setDeleteConfirm(null)
     setDeletingFileId(file.id)
     try {
       await deleteMutation.mutateAsync(file.id)
@@ -162,7 +173,7 @@ export function ClaimFilesTab({ claimId }: ClaimFilesTabProps) {
     } finally {
       setDeletingFileId(null)
     }
-  }, [deleteMutation, deletingFileId])
+  }, [deleteMutation, deletingFileId, deleteConfirm])
 
   // Loading state
   if (isLoading) {
@@ -265,11 +276,33 @@ export function ClaimFilesTab({ claimId }: ClaimFilesTabProps) {
           <FileCard
             key={file.id}
             file={file}
-            onDelete={() => void handleDeleteFile(file)}
+            onDelete={() => setDeleteConfirm(file)}
             isDeleting={deletingFileId === file.id}
           />
         ))}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Eliminar archivo</AlertDialogTitle>
+            <AlertDialogDescription>
+              ¿Estás seguro de que deseas eliminar "{deleteConfirm?.originalName}"?
+              Esta acción no se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => void handleDeleteFile()}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

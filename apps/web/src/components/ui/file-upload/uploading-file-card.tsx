@@ -1,37 +1,38 @@
 import { FileText, Loader2, AlertCircle, X, Upload } from 'lucide-react'
-import { ClaimFileCategory } from '@claims/shared'
+import { ClaimFileCategory, PolicyFileCategory } from '@claims/shared'
 import { cn } from '@/lib/utils'
-import type { UploadingFile } from './file-list'
+import type { UploadingFile, FileCategory } from './file-list'
+import { ClaimFileCategoryLabel, PolicyFileCategoryLabel } from './file-list'
 
-const ClaimFileCategoryLabel: Record<ClaimFileCategory, string> = {
-  RECEIPT: 'Recibo',
-  PRESCRIPTION: 'Receta médica',
-  LAB_REPORT: 'Resultado de laboratorio',
-  DISCHARGE_SUMMARY: 'Resumen de egreso',
-  AUTHORIZATION: 'Autorización',
-  OTHER: 'Otro',
-}
-
-const FILE_CATEGORIES = Object.values(ClaimFileCategory).map((value) => ({
+// Build category options dynamically based on category type
+const CLAIM_FILE_CATEGORIES = Object.values(ClaimFileCategory).map((value) => ({
   value,
   label: ClaimFileCategoryLabel[value],
 }))
 
-export interface UploadingFileCardProps {
-  file: UploadingFile
+const POLICY_FILE_CATEGORIES = Object.values(PolicyFileCategory).map((value) => ({
+  value,
+  label: PolicyFileCategoryLabel[value],
+}))
+
+export interface UploadingFileCardProps<T extends FileCategory = ClaimFileCategory> {
+  file: UploadingFile<T>
   onRemove?: () => void
-  onCategoryChange?: (category: ClaimFileCategory | null) => void
+  onCategoryChange?: (category: T | null) => void
   onUpload?: () => void // Individual upload trigger for pending files
   className?: string
+  categoryType?: 'claim' | 'policy'
 }
 
-export function UploadingFileCard({
+export function UploadingFileCard<T extends FileCategory = ClaimFileCategory>({
   file,
   onRemove,
   onCategoryChange,
   onUpload,
   className,
-}: UploadingFileCardProps) {
+  categoryType = 'claim',
+}: UploadingFileCardProps<T>) {
+  const FILE_CATEGORIES = categoryType === 'policy' ? POLICY_FILE_CATEGORIES : CLAIM_FILE_CATEGORIES
   const isError = file.status === 'error'
   const isUploading = file.status === 'uploading'
   const isPending = file.status === 'pending'
@@ -111,7 +112,7 @@ export function UploadingFileCard({
             value={file.category || ''}
             onChange={(e) =>
               onCategoryChange(
-                e.target.value ? (e.target.value as ClaimFileCategory) : null
+                e.target.value ? (e.target.value as T) : null
               )
             }
           >

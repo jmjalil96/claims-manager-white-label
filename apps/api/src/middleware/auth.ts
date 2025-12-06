@@ -15,6 +15,22 @@ export interface AuthUser {
   role: string | null
 }
 
+/**
+ * Check if auth is disabled for testing
+ * Only works in non-production environments
+ */
+const isAuthDisabled = process.env.DISABLE_AUTH === 'true' && process.env.NODE_ENV !== 'production'
+
+/**
+ * Mock user for testing when auth is disabled
+ */
+const mockUser: AuthUser = {
+  id: 'CM8ImuQseVVd1nz7VusseRtPo0YSJ7TG',
+  email: 'juanjalilf@gmail.com',
+  name: 'Juan Jalil',
+  role: 'superadmin',
+}
+
 // Extend Express Request
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -54,6 +70,11 @@ async function getAuthenticatedUser(req: Request) {
 
 // Require authentication
 export async function requireAuth(req: Request, _res: Response, next: NextFunction) {
+  if (isAuthDisabled) {
+    req.user = mockUser
+    return next()
+  }
+
   const result = await getAuthenticatedUser(req)
 
   if (!result) {
@@ -68,6 +89,11 @@ export async function requireAuth(req: Request, _res: Response, next: NextFuncti
 // Require specific roles (internal roles always pass)
 export function requireRole(...allowedRoles: string[]) {
   return async (req: Request, _res: Response, next: NextFunction) => {
+    if (isAuthDisabled) {
+      req.user = mockUser
+      return next()
+    }
+
     const result = await getAuthenticatedUser(req)
 
     if (!result) {
@@ -96,6 +122,11 @@ export function requireRole(...allowedRoles: string[]) {
 
 // Require internal role (broker employees only)
 export async function requireInternalRole(req: Request, _res: Response, next: NextFunction) {
+  if (isAuthDisabled) {
+    req.user = mockUser
+    return next()
+  }
+
   const result = await getAuthenticatedUser(req)
 
   if (!result) {
@@ -113,6 +144,11 @@ export async function requireInternalRole(req: Request, _res: Response, next: Ne
 
 // Require superadmin role only
 export async function requireSuperAdmin(req: Request, _res: Response, next: NextFunction) {
+  if (isAuthDisabled) {
+    req.user = mockUser
+    return next()
+  }
+
   const result = await getAuthenticatedUser(req)
 
   if (!result) {
@@ -131,6 +167,11 @@ export async function requireSuperAdmin(req: Request, _res: Response, next: Next
 // Require access to a specific client (via UserClient)
 export function requireClientAccess(clientIdParam = 'clientId') {
   return async (req: Request, _res: Response, next: NextFunction) => {
+    if (isAuthDisabled) {
+      req.user = mockUser
+      return next()
+    }
+
     const result = await getAuthenticatedUser(req)
 
     if (!result) {

@@ -159,8 +159,8 @@ function ClaimsListPage() {
   const updateSearch = useCallback(
     (updates: Partial<ClaimsSearch>) => {
       void navigate({
-        to: '/claims',
-        search: (prev) => ({ ...prev, ...updates }),
+        from: Route.fullPath,
+        search: (prev: ClaimsSearch) => ({ ...prev, ...updates }),
       })
     },
     [navigate]

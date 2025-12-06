@@ -21,6 +21,7 @@ import {
   LayoutDashboard,
   Folder,
   FilePlus,
+  ScrollText,
   Users,
   Stethoscope,
   PieChart,
@@ -56,6 +57,9 @@ function AuthenticatedLayout() {
       </SidebarNavItem>
       <SidebarNavItem to="/claims" icon={Folder} excludePaths={['/claims/new']}>
         Claims
+      </SidebarNavItem>
+      <SidebarNavItem to="/policies" icon={ScrollText}>
+        Policies
       </SidebarNavItem>
       <SidebarNavItem to="/patients" icon={Users}>
         Patients

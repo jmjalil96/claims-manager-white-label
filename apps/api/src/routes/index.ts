@@ -2,11 +2,13 @@ import { Router } from 'express'
 import { db } from '../lib/db.js'
 import { requireAuth } from '../middleware/auth.js'
 import { claimsRouter } from '../features/claims/index.js'
+import { policiesRouter } from '../features/policies/index.js'
 
 const router = Router()
 
 // Feature routers
 router.use('/api/claims', claimsRouter)
+router.use('/api/policies', policiesRouter)
 
 // Health check with DB status
 router.get('/health', async (_req, res) => {
