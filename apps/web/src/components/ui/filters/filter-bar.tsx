@@ -35,9 +35,9 @@ export function FilterBar({
   return (
     <div className={cn('space-y-3', className)}>
       {/* Filter controls row */}
-      <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-3">
-        {/* Search slot - always visible */}
-        {hasSearch && search}
+      <div className="flex items-center gap-2 md:gap-3 rounded-lg border border-slate-200 bg-white p-2 md:p-3">
+        {/* Search slot - grows on mobile, fixed on desktop */}
+        {hasSearch && <div className="flex-1 md:flex-none">{search}</div>}
 
         {/* Divider between search and filters - hidden on mobile */}
         {hasSearch && hasQuickFilters && (
@@ -49,8 +49,8 @@ export function FilterBar({
           <div className="hidden md:flex items-center gap-2">{quickFilters}</div>
         )}
 
-        {/* Spacer */}
-        <div className="flex-1" />
+        {/* Spacer - only on desktop */}
+        <div className="hidden md:block md:flex-1" />
 
         {/* Mobile filter button - visible only on mobile */}
         {showMoreButton && (

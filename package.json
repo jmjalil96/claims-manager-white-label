@@ -19,6 +19,7 @@
     "typecheck:web": "tsc -b apps/web",
     "test": "npm run test --workspaces --if-present",
     "test:api": "npm run test -w @claims/api",
+    "test:web": "npm run test -w @claims/web",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",

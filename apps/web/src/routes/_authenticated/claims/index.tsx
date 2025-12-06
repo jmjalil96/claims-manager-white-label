@@ -35,7 +35,6 @@ import {
   DataTableRowActions,
   createViewAction,
   createEditAction,
-  createDeleteAction,
   CardList,
   CardListEmpty,
   CardListLoadMore,
@@ -535,10 +534,6 @@ function ClaimsListPage() {
               }),
               createEditAction(() => {
                 void navigate({ to: '/claims/$claimId', params: { claimId: row.original.id } })
-              }),
-              createDeleteAction(() => {
-                // TODO: Implement delete confirmation
-                console.log('Delete claim:', row.original.id)
               }),
             ]}
           />

@@ -23,6 +23,7 @@ import {
 import { cn, toast } from '@/lib'
 import { useClaimInvoices, useDeleteInvoice } from '../claimInvoices'
 import { InvoiceFormSheet } from './invoice-form-sheet'
+import { getConsistencyStatus } from '../utils/invoice-consistency'
 
 /* -----------------------------------------------------------------------------
  * Types & Props
@@ -36,12 +37,6 @@ interface ClaimInvoicesTabProps {
 interface SummaryCardProps {
   label: string
   value: string
-  icon: React.ReactNode
-}
-
-interface ConsistencyStatus {
-  status: 'match' | 'close' | 'mismatch'
-  label: string
   icon: React.ReactNode
 }
 
@@ -68,30 +63,14 @@ function formatDate(isoString: string): string {
   })
 }
 
-function getConsistencyStatus(invoiceTotal: number, claimAmount: number | undefined): ConsistencyStatus | null {
-  if (claimAmount === undefined || claimAmount === 0) return null
-
-  const diff = Math.abs(invoiceTotal - claimAmount)
-  const percentDiff = (diff / claimAmount) * 100
-
-  if (diff === 0) {
-    return {
-      status: 'match',
-      label: 'Coincide',
-      icon: <CheckCircle className="size-4 text-green-600" />,
-    }
-  }
-  if (percentDiff <= 5) {
-    return {
-      status: 'close',
-      label: 'Diferencia menor',
-      icon: <AlertTriangle className="size-4 text-amber-600" />,
-    }
-  }
-  return {
-    status: 'mismatch',
-    label: 'No coincide',
-    icon: <XCircle className="size-4 text-red-600" />,
+function getConsistencyIcon(status: 'match' | 'close' | 'mismatch') {
+  switch (status) {
+    case 'match':
+      return <CheckCircle className="size-4 text-green-600" />
+    case 'close':
+      return <AlertTriangle className="size-4 text-amber-600" />
+    case 'mismatch':
+      return <XCircle className="size-4 text-red-600" />
   }
 }
 
@@ -289,7 +268,7 @@ export function ClaimInvoicesTab({ claimId, claimAmountSubmitted }: ClaimInvoice
       {/* Consistency Check */}
       {consistency && claimAmountSubmitted !== undefined && (
         <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-slate-50 border border-slate-200">
-          {consistency.icon}
+          {getConsistencyIcon(consistency.status)}
           <div className="flex-1">
             <span className="text-sm text-slate-600">
               Total facturas vs Monto Reclamo:

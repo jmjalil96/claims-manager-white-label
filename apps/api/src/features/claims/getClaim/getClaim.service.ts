@@ -7,6 +7,8 @@ import { db } from '../../../lib/db.js'
 import { AppError } from '../../../lib/errors.js'
 import { createLogger } from '../../../lib/logger.js'
 import { isInternalRole } from '../../../lib/constants.js'
+import { calculateBusinessDays } from '../../../utils/date.js'
+import { ClaimStatus } from '@claims/shared'
 import type { ClaimDetailDto } from './getClaim.dto.js'
 import type { AuthUser } from '../../../middleware/auth.js'
 
@@ -79,7 +81,28 @@ export async function getClaim(id: string, user: AuthUser): Promise<ClaimDetailD
 
   logger.info({ claimId: id, claimNumber: claim.claimNumber }, 'Claim retrieved successfully')
 
-  // 3. Transform to DTO
+  // 3. Compute businessDays dynamically from latest submission cycle
+  const lastReprocess = await db.claimReprocess.findFirst({
+    where: { claimId: id },
+    orderBy: { reprocessDate: 'desc' },
+    select: { reprocessDate: true },
+  })
+
+  // Start date: latest reprocess or original submission
+  const cycleStartDate = lastReprocess?.reprocessDate ?? claim.submittedDate
+
+  // End date: settlementDate for SETTLED, otherwise today
+  const cycleEndDate =
+    claim.status === ClaimStatus.SETTLED && claim.settlementDate
+      ? claim.settlementDate
+      : new Date()
+
+  // Compute business days (exclusive start)
+  const computedBusinessDays = cycleStartDate
+    ? calculateBusinessDays(cycleStartDate, cycleEndDate)
+    : null
+
+  // 4. Transform to DTO
   const claimDto: ClaimDetailDto = {
     id: claim.id,
     claimNumber: claim.claimNumber,
@@ -107,7 +130,7 @@ export async function getClaim(id: string, user: AuthUser): Promise<ClaimDetailD
     incidentDate: claim.incidentDate?.toISOString().split('T')[0] ?? null,
     submittedDate: claim.submittedDate?.toISOString().split('T')[0] ?? null,
     settlementDate: claim.settlementDate?.toISOString().split('T')[0] ?? null,
-    businessDays: claim.businessDays,
+    businessDays: computedBusinessDays,
     settlementNumber: claim.settlementNumber,
     settlementNotes: claim.settlementNotes,
     returnReason: claim.returnReason,

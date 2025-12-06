@@ -7,6 +7,7 @@ import { db } from '../../../lib/db.js'
 import { AppError } from '../../../lib/errors.js'
 import { createLogger } from '../../../lib/logger.js'
 import { audit, diff } from '../../../lib/audit.js'
+import { calculateBusinessDays } from '../../../utils/date.js'
 import { validate as validateStateMachine } from '@claims/shared'
 import type { EditClaimInput } from './editClaim.schema.js'
 import type { UpdateClaimResponseDto } from './editClaim.dto.js'
@@ -115,10 +116,20 @@ export async function editClaim(
     const { reprocessDate: rpDate, reprocessDescription: rpDesc } = validationResult.reprocessData
 
     if (rpDate && rpDesc) {
-      // Calculate business days if needed
+      // Calculate business days from previous cycle start (not always from submittedDate)
       let businessDays: number | undefined
-      if (validationResult.autoCalculateBusinessDays && claim.submittedDate) {
-        businessDays = calculateBusinessDays(claim.submittedDate, new Date(rpDate as string))
+      if (validationResult.autoCalculateBusinessDays) {
+        // Get previous reprocess (if any) to determine cycle start
+        const previousReprocess = await db.claimReprocess.findFirst({
+          where: { claimId: id },
+          orderBy: { reprocessDate: 'desc' },
+          select: { reprocessDate: true },
+        })
+
+        const cycleStart = previousReprocess?.reprocessDate ?? claim.submittedDate
+        if (cycleStart) {
+          businessDays = calculateBusinessDays(cycleStart, new Date(rpDate as string))
+        }
       }
 
       await db.claimReprocess.create({
@@ -167,20 +178,3 @@ export async function editClaim(
   }
 }
 
-/**
- * Calculate business days between two dates (excluding weekends)
- */
-function calculateBusinessDays(startDate: Date, endDate: Date): number {
-  let count = 0
-  const current = new Date(startDate)
-
-  while (current <= endDate) {
-    const dayOfWeek = current.getDay()
-    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-      count++
-    }
-    current.setDate(current.getDate() + 1)
-  }
-
-  return count
-}

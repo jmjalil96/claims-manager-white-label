@@ -2,6 +2,7 @@ import { Check, Clock, AlertTriangle, CheckCircle2, XCircle, Ban } from 'lucide-
 import { Button } from '@/components/ui'
 import { ClaimStatus } from '@claims/shared'
 import { cn } from '@/lib/utils'
+import { getWorkflowActions } from '../utils/workflow-actions'
 
 /* -----------------------------------------------------------------------------
  * Types & Configuration
@@ -41,10 +42,10 @@ interface StepCircleProps {
 
 function StepCircle({ state, label }: StepCircleProps) {
   return (
-    <div className="flex flex-col items-center gap-1.5 z-10">
+    <div className="flex flex-row items-center gap-2 md:flex-col md:gap-1.5 z-10">
       <div
         className={cn(
-          'size-7 rounded-full flex items-center justify-center transition-all duration-300 border-[1.5px]',
+          'size-7 rounded-full flex items-center justify-center transition-all duration-300 border-[1.5px] shrink-0',
           state === 'completed' && 'bg-teal-600 border-teal-600 text-white',
           state === 'current' && 'bg-white border-teal-600 text-teal-600 shadow-sm shadow-teal-100',
           state === 'pending' && 'bg-white border-slate-200 text-slate-300',
@@ -62,7 +63,7 @@ function StepCircle({ state, label }: StepCircleProps) {
       </div>
       <span
         className={cn(
-          'text-[10px] font-medium tracking-wide uppercase whitespace-nowrap',
+          'text-xs md:text-[10px] font-medium tracking-wide uppercase whitespace-nowrap',
           state === 'completed' && 'text-teal-700',
           state === 'current' && 'text-teal-700',
           state === 'pending' && 'text-slate-400',
@@ -161,34 +162,10 @@ export function ClaimWorkflowStepper({
     return STEP_LABELS[step]
   }
 
-  // Get actions for current status
-  function getActions(): { label: string; status: ClaimStatus; variant: 'outline' | 'primary' | 'ghost' }[] {
+  // Get actions for current status (returns empty if no transition handler)
+  function getActions() {
     if (!onTransition) return []
-
-    switch (currentStatus) {
-      case ClaimStatus.DRAFT:
-        return [{ label: 'Enviar a Validación', status: ClaimStatus.VALIDATION, variant: 'primary' }]
-      case ClaimStatus.VALIDATION:
-        return [
-          { label: 'Devolver', status: ClaimStatus.DRAFT, variant: 'outline' },
-          { label: 'Presentar', status: ClaimStatus.SUBMITTED, variant: 'primary' },
-        ]
-      case ClaimStatus.SUBMITTED:
-        return [
-          { label: 'Solicitar Info', status: ClaimStatus.PENDING_INFO, variant: 'outline' },
-          { label: 'Devolver', status: ClaimStatus.RETURNED, variant: 'outline' },
-          { label: 'Liquidar', status: ClaimStatus.SETTLED, variant: 'primary' },
-        ]
-      case ClaimStatus.PENDING_INFO:
-        return [
-          { label: 'Info Recibida', status: ClaimStatus.SUBMITTED, variant: 'primary' },
-          { label: 'Devolver', status: ClaimStatus.RETURNED, variant: 'outline' },
-        ]
-      case ClaimStatus.RETURNED:
-        return [{ label: 'Reintentar', status: ClaimStatus.DRAFT, variant: 'primary' }]
-      default:
-        return []
-    }
+    return getWorkflowActions(currentStatus)
   }
 
   // Message configuration
@@ -211,8 +188,8 @@ export function ClaimWorkflowStepper({
       {/* Stepper Content */}
       <div className="px-4 py-3">
         <div className="relative">
-          {/* Connector Lines Layer */}
-          <div className="absolute top-3.5 left-0 right-0 flex px-[44px]">
+          {/* Horizontal Connector Lines (Desktop only) */}
+          <div className="hidden md:flex absolute top-3.5 left-0 right-0 px-[44px]">
             {PRIMARY_STEPS.slice(0, -1).map((_, i) => {
               const cState = getConnectorState(i)
               return (
@@ -230,8 +207,8 @@ export function ClaimWorkflowStepper({
             })}
           </div>
 
-          {/* Steps Layer */}
-          <div className="flex justify-between relative">
+          {/* Steps Layer - Vertical on mobile, Horizontal on desktop */}
+          <div className="flex flex-col gap-2 md:flex-row md:justify-between relative">
             {PRIMARY_STEPS.map((step, index) => (
               <StepCircle
                 key={step}
@@ -282,9 +259,9 @@ export function ClaimWorkflowStepper({
             </div>
           )}
 
-          {/* Actions (right side) */}
+          {/* Actions (right side) - Hidden on mobile */}
           {actions.length > 0 && (
-            <div className="flex items-center gap-1.5 shrink-0">
+            <div className="hidden md:flex items-center gap-1.5 shrink-0">
               {actions.map((action) => (
                 <Button
                   key={action.status}

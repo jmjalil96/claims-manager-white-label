@@ -91,7 +91,9 @@ function NewClaimPage() {
   // Create claim mutation
   const createClaimMutation = useCreateClaim()
 
-  // For demo: show internal user view (with client selector)
+  // TODO: Derive isInternalUser from useAuth() context based on user role
+  // Internal roles: superadmin, claims_admin, claims_employee, operations_employee
+  // External users (affiliates) should not see the client selector
   const isInternalUser = true
 
   // Transform data to combobox options
@@ -236,7 +238,7 @@ function NewClaimPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto py-8 px-4">
+    <div className="max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-8">
         <Link
@@ -246,7 +248,7 @@ function NewClaimPage() {
           <ArrowLeft className="size-4" />
           Cancelar
         </Link>
-        <h1 className="text-3xl font-bold mt-3 text-slate-900">Nuevo Reclamo</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold mt-3 text-slate-900">Nuevo Reclamo</h1>
         <p className="text-slate-500 mt-1">
           Complete la información para iniciar un proceso de reembolso.
         </p>
@@ -254,7 +256,7 @@ function NewClaimPage() {
 
       <form
         onSubmit={(e) => void handleSubmit(onSubmit)(e)}
-        className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start"
+        className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 items-start"
       >
         {/* LEFT COLUMN (2/3) - Core Data */}
         <div className="lg:col-span-2 space-y-6">
@@ -262,7 +264,7 @@ function NewClaimPage() {
           <Card className="p-6 space-y-5">
             <CardHeader icon={User} title="Paciente" />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               {/* Client selector - only for internal users */}
               {isInternalUser && (
                 <div className="md:col-span-2">
@@ -359,15 +361,15 @@ function NewClaimPage() {
             </FormField>
           </Card>
 
-          {/* Info Banner */}
-          <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-lg border border-slate-100">
-            <div className="size-5 rounded-full bg-teal-100 flex items-center justify-center shrink-0 mt-0.5">
-              <span className="text-xs font-medium text-teal-700">i</span>
-            </div>
-            <p className="text-sm text-slate-600">
-              El reclamo se creará en estado <strong>BORRADOR</strong>. Podrás agregar más
-              documentos y editar la información antes de enviarlo.
-            </p>
+          {/* Required Documents Info */}
+          <div className="p-4 bg-slate-50 rounded-lg border border-slate-100">
+            <p className="text-sm font-medium text-slate-700 mb-2">Documentos requeridos:</p>
+            <ul className="text-sm text-slate-600 space-y-1">
+              <li>• Factura o recibo del proveedor</li>
+              <li>• Orden médica o receta</li>
+              <li>• Resultados de estudios (si aplica)</li>
+              <li>• Comprobante de pago</li>
+            </ul>
           </div>
         </div>
 
@@ -402,14 +404,6 @@ function NewClaimPage() {
               disabled={createClaimMutation.isPending}
             >
               {createClaimMutation.isPending ? 'Creando...' : 'Crear Reclamo'}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full"
-              disabled={createClaimMutation.isPending}
-            >
-              Guardar Borrador
             </Button>
           </div>
         </div>

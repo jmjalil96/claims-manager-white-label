@@ -7,6 +7,7 @@ import { db } from '../../../lib/db.js'
 import { AppError } from '../../../lib/errors.js'
 import { createLogger } from '../../../lib/logger.js'
 import { SLA_LIMITS } from '../../../lib/constants.js'
+import { calculateBusinessDays } from '../../../utils/date.js'
 import type { GetClaimSlaResponse, ClaimSlaStageDto, SlaIndicator } from './getClaimSla.dto.js'
 import type { ClaimStatus } from '@claims/shared'
 
@@ -164,24 +165,6 @@ function getIndicator(businessDays: number, limit: number | null): SlaIndicator 
   }
 
   return 'on_time'
-}
-
-/**
- * Calculate business days between two dates (excluding weekends)
- */
-function calculateBusinessDays(startDate: Date, endDate: Date): number {
-  let count = 0
-  const current = new Date(startDate)
-
-  while (current <= endDate) {
-    const dayOfWeek = current.getDay()
-    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-      count++
-    }
-    current.setDate(current.getDate() + 1)
-  }
-
-  return count
 }
 
 /**

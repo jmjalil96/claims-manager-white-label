@@ -48,43 +48,42 @@ export function ClaimDetailHeader({
   return (
     <div className={cn('bg-white border-b border-slate-200', className)}>
       {/* Inner content constrained to match main content width */}
-      <div className="max-w-7xl mx-auto px-8 pt-6">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 pt-4 md:pt-6">
         {/* Back Navigation */}
-        <nav aria-label="Breadcrumb" className="mb-3">
+        <nav aria-label="Breadcrumb" className="mb-2 md:mb-3">
           <Link
             to="/claims"
             className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 transition-colors"
           >
             <ChevronLeft className="size-4" />
-            <span>Volver a Reclamos</span>
+            <span className="hidden sm:inline">Volver a Reclamos</span>
+            <span className="sm:hidden">Volver</span>
           </Link>
         </nav>
 
         {/* Title Row */}
-        <div className="flex items-start justify-between gap-4 pb-4">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2 md:gap-4 pb-3 md:pb-4">
           <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-                Reclamo #{claimNumber}
-              </h1>
-              {/* Badges inline with title */}
-              <div className="flex items-center gap-2">
-                {careType && (
-                  <StatusBadge
-                    label={CareTypeLabel[careType]}
-                    variant="default"
-                  />
-                )}
+            <h1 className="text-xl md:text-3xl font-bold tracking-tight text-slate-900">
+              Reclamo #{claimNumber}
+            </h1>
+            {/* Badges below title on mobile, inline on desktop */}
+            <div className="flex flex-wrap items-center gap-2 mt-2 md:mt-1">
+              {careType && (
                 <StatusBadge
-                  label={ClaimStatusLabel[status]}
-                  variant={getClaimStatusVariant(status)}
+                  label={CareTypeLabel[careType]}
+                  variant="default"
                 />
-              </div>
+              )}
+              <StatusBadge
+                label={ClaimStatusLabel[status]}
+                variant={getClaimStatusVariant(status)}
+              />
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-2">
+          {/* Actions - Hidden on mobile */}
+          <div className="hidden md:flex items-center gap-2">
             {onEdit && (
               <Button
                 variant="outline"
@@ -111,7 +110,7 @@ export function ClaimDetailHeader({
 
       {/* Tabs Area - constrained to match main content width */}
       {children && (
-        <div className="max-w-7xl mx-auto px-8">
+        <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="-mb-px">{children}</div>
         </div>
       )}

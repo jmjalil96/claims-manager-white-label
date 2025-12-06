@@ -150,7 +150,7 @@ describe('Get Claim SLA Stage Timeline', () => {
 // =============================================================================
 
 describe('Get Claim SLA Indicators', () => {
-  it('returns at_risk for claim on last day of limit', async () => {
+  it('returns on_time for claim created today (exclusive start = 0 business days)', async () => {
     const admin = await createUser('claims_admin')
     const client = await createClient()
     const aff = await createAffiliate(client.id)
@@ -158,9 +158,9 @@ describe('Get Claim SLA Indicators', () => {
 
     const result = await getClaimSla(claim.id)
 
-    // DRAFT limit is 1 day, day 1 is the last day = at_risk
-    expect(result.currentIndicator).toBe('at_risk')
-    expect(result.stages[0]!.indicator).toBe('at_risk')
+    // DRAFT limit is 1 day, but with exclusive start, same day = 0 business days = on_time
+    expect(result.currentIndicator).toBe('on_time')
+    expect(result.stages[0]!.indicator).toBe('on_time')
   })
 
   it('returns on_time for terminal status (no limit)', async () => {
@@ -202,7 +202,7 @@ describe('Get Claim SLA Indicators', () => {
 // =============================================================================
 
 describe('Get Claim SLA Business Days', () => {
-  it('calculates business days correctly', async () => {
+  it('calculates business days correctly (exclusive start)', async () => {
     const admin = await createUser('claims_admin')
     const client = await createClient()
     const aff = await createAffiliate(client.id)
@@ -210,9 +210,9 @@ describe('Get Claim SLA Business Days', () => {
 
     const result = await getClaimSla(claim.id)
 
-    // Should have at least 1 business day (today)
-    expect(result.totalBusinessDays).toBeGreaterThanOrEqual(1)
-    expect(result.stages[0]!.businessDays).toBeGreaterThanOrEqual(1)
+    // With exclusive start, a claim created today = 0 business days
+    expect(result.totalBusinessDays).toBeGreaterThanOrEqual(0)
+    expect(result.stages[0]!.businessDays).toBeGreaterThanOrEqual(0)
   })
 
   it('calculates calendar days correctly', async () => {

@@ -48,7 +48,7 @@ export function SearchInput({
       leftIcon={<Search size={18} />}
       clearable={localValue.length > 0}
       onClear={handleClear}
-      className={cn('w-64', className)}
+      className={cn('w-full md:w-80 lg:w-96', className)}
       size="sm"
     />
   )
