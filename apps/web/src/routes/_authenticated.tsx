@@ -22,6 +22,7 @@ import {
   Folder,
   FilePlus,
   ScrollText,
+  Building2,
   Users,
   Stethoscope,
   PieChart,
@@ -50,28 +51,31 @@ function AuthenticatedLayout() {
   const navItems = (
     <>
       <SidebarNavItem to="/dashboard" icon={LayoutDashboard} exact>
-        Dashboard
+        Panel
       </SidebarNavItem>
       <SidebarNavItem to="/claims/new" icon={FilePlus} exact>
-        New Claim
+        Nuevo Reclamo
       </SidebarNavItem>
       <SidebarNavItem to="/claims" icon={Folder} excludePaths={['/claims/new']}>
-        Claims
+        Reclamos
       </SidebarNavItem>
       <SidebarNavItem to="/policies" icon={ScrollText}>
-        Policies
+        Pólizas
+      </SidebarNavItem>
+      <SidebarNavItem to="/clients" icon={Building2}>
+        Clientes
       </SidebarNavItem>
       <SidebarNavItem to="/patients" icon={Users}>
-        Patients
+        Pacientes
       </SidebarNavItem>
       <SidebarNavItem to="/providers" icon={Stethoscope}>
-        Providers
+        Proveedores
       </SidebarNavItem>
       <SidebarNavItem to="/reports" icon={PieChart}>
-        Reports
+        Reportes
       </SidebarNavItem>
       <SidebarNavItem to="/settings" icon={Settings}>
-        Settings
+        Configuración
       </SidebarNavItem>
     </>
   )

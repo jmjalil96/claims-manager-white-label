@@ -178,7 +178,7 @@ const SidebarNav = React.forwardRef<HTMLElement, SidebarNavProps>(
     return (
       <nav
         ref={ref}
-        aria-label="Main navigation"
+        aria-label="Navegación principal"
         className={cn('flex flex-col gap-1', className)}
         {...props}
       >
@@ -302,7 +302,7 @@ const SidebarCollapseButton = React.forwardRef<HTMLButtonElement, SidebarCollaps
         type="button"
         onClick={toggle}
         aria-expanded={!collapsed}
-        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        aria-label={collapsed ? 'Expandir menú' : 'Colapsar menú'}
         className={cn(
           'absolute -right-3.5 top-[26px] z-50 hidden lg:flex items-center justify-center h-7 w-7 rounded-full bg-slate-800 border-2 border-teal-500 text-teal-500 hover:bg-teal-500 hover:text-white shadow-md transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
           className
@@ -362,7 +362,7 @@ const SidebarMobileTrigger = React.forwardRef<HTMLButtonElement, SidebarMobileTr
         type="button"
         onClick={toggleMobile}
         aria-expanded={mobileOpen}
-        aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+        aria-label={mobileOpen ? 'Cerrar menú' : 'Abrir menú'}
         className={cn(
           'flex items-center justify-center h-10 w-10 rounded-md text-gray-300 hover:bg-slate-700 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
           className
@@ -454,7 +454,7 @@ const SidebarMobileDrawer = React.forwardRef<HTMLDivElement, SidebarMobileDrawer
             }}
             role="dialog"
             aria-modal="true"
-            aria-label="Navigation menu"
+            aria-label="Menú de navegación"
             className={cn(
               'lg:hidden fixed top-14 left-0 bottom-0 z-50 w-[280px] bg-slate-900 border-r border-gray-800 p-4 overflow-y-auto',
               className
@@ -493,7 +493,7 @@ function SidebarUserSection({ email, onSignOut }: SidebarUserSectionProps) {
         className="flex items-center gap-3 w-full px-3 py-3 rounded-lg text-gray-300 hover:bg-slate-800 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
       >
         <LogOut size={22} aria-hidden="true" />
-        <span className="text-sm font-medium">Sign out</span>
+        <span className="text-sm font-medium">Cerrar sesión</span>
       </button>
     </div>
   )
@@ -546,13 +546,13 @@ function SidebarUserMenu({ email, onSignOut }: SidebarUserMenuProps) {
           <DropdownMenu.Item asChild>
             <Link to="/settings" className={dropdownItemStyles}>
               <User size={16} aria-hidden="true" />
-              Profile
+              Perfil
             </Link>
           </DropdownMenu.Item>
           <DropdownMenu.Item asChild>
             <Link to="/settings" className={dropdownItemStyles}>
               <Settings size={16} aria-hidden="true" />
-              Settings
+              Configuración
             </Link>
           </DropdownMenu.Item>
           <DropdownMenu.Separator className="h-px bg-gray-700 my-1" />
@@ -561,7 +561,7 @@ function SidebarUserMenu({ email, onSignOut }: SidebarUserMenuProps) {
             className={dropdownItemStyles}
           >
             <LogOut size={16} aria-hidden="true" />
-            Sign out
+            Cerrar sesión
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
