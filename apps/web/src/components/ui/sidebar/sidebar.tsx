@@ -287,6 +287,134 @@ const SidebarNavItem = React.forwardRef<HTMLAnchorElement, SidebarNavItemProps>(
 SidebarNavItem.displayName = 'SidebarNavItem'
 
 /* -----------------------------------------------------------------------------
+ * SidebarNavItemAI - Special nav item with iridescent obsidian effect
+ * -------------------------------------------------------------------------- */
+
+interface SidebarNavItemAIProps
+  extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> {
+  to: string
+  icon: LucideIcon
+  children: React.ReactNode
+}
+
+const SidebarNavItemAI = React.forwardRef<HTMLAnchorElement, SidebarNavItemAIProps>(
+  ({ className, to, icon: Icon, children, ...props }, ref) => {
+    const { collapsed } = useSidebar()
+    const location = useLocation()
+    const isActive = location.pathname.startsWith(to)
+
+    const link = (
+      <Link
+        ref={ref}
+        to={to}
+        className={cn(
+          'group relative flex items-center rounded-lg transition-all duration-300',
+          'focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900',
+          collapsed ? 'justify-center py-3' : 'gap-3 px-3 py-3',
+          isActive
+            ? 'bg-slate-800/50 text-white shadow-[0_0_15px_rgba(168,85,247,0.1)]'
+            : 'text-gray-300 hover:text-white hover:bg-slate-800',
+          className
+        )}
+        {...props}
+      >
+        {/* Animated Gradient Border */}
+        <div
+          className={cn(
+            'absolute inset-0 rounded-lg transition-opacity duration-300',
+            isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+          )}
+          style={{
+            padding: '1px',
+            background: 'linear-gradient(90deg, #06b6d4, #a855f7, #ec4899, #06b6d4)',
+            backgroundSize: '300% 100%',
+            animation: 'ai-border-flow 3s ease infinite',
+            mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+            maskComposite: 'exclude',
+            WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+            WebkitMaskComposite: 'xor',
+            pointerEvents: 'none',
+          }}
+          aria-hidden="true"
+        />
+
+        {/* Inner Glow Background */}
+        <div
+          className={cn(
+            'absolute inset-0 rounded-lg transition-opacity duration-500',
+            isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+          )}
+          style={{
+            background: 'linear-gradient(135deg, rgba(6,182,212,0.1), rgba(168,85,247,0.1), rgba(236,72,153,0.1))',
+          }}
+          aria-hidden="true"
+        />
+
+        {/* Pulsing Glow Effect (Behind) */}
+        {isActive && !collapsed && (
+          <div
+            className="absolute inset-0 rounded-lg bg-purple-500/20 blur-xl"
+            style={{ animation: 'ai-glow-pulse 3s ease-in-out infinite' }}
+            aria-hidden="true"
+          />
+        )}
+
+        {/* Icon with glow effect */}
+        <div className="relative z-10">
+          <Icon
+            size={collapsed ? 24 : 22}
+            className={cn(
+              'shrink-0 transition-all duration-300',
+              isActive
+                ? 'text-purple-300 drop-shadow-[0_0_5px_rgba(168,85,247,0.8)]'
+                : 'text-gray-300 group-hover:text-white group-hover:drop-shadow-[0_0_6px_rgba(168,85,247,0.6)]'
+            )}
+            aria-hidden="true"
+          />
+        </div>
+
+        {/* Text */}
+        {!collapsed && (
+          <span
+            className={cn(
+              'relative z-10 text-sm leading-normal transition-all duration-300',
+              isActive
+                ? 'font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-gray-200'
+                : 'font-medium'
+            )}
+          >
+            {children}
+          </span>
+        )}
+      </Link>
+    )
+
+    if (collapsed) {
+      return (
+        <Tooltip.Provider delayDuration={0}>
+          <Tooltip.Root>
+            <Tooltip.Trigger asChild>{link}</Tooltip.Trigger>
+            <Tooltip.Portal>
+              <Tooltip.Content
+                side="right"
+                sideOffset={12}
+                className="z-50 px-3 py-1.5 text-sm font-medium text-white bg-slate-800 border border-gray-700 rounded-md shadow-md"
+              >
+                {children}
+                <Tooltip.Arrow className="fill-slate-800" />
+              </Tooltip.Content>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+        </Tooltip.Provider>
+      )
+    }
+
+    return link
+  }
+)
+SidebarNavItemAI.displayName = 'SidebarNavItemAI'
+
+/* -----------------------------------------------------------------------------
  * SidebarCollapseButton
  * -------------------------------------------------------------------------- */
 
@@ -582,6 +710,7 @@ export {
   SidebarFooter,
   SidebarNav,
   SidebarNavItem,
+  SidebarNavItemAI,
   SidebarCollapseButton,
   SidebarMobileHeader,
   SidebarMobileTrigger,

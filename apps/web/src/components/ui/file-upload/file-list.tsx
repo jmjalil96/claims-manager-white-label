@@ -1,26 +1,7 @@
 import { File, Trash2, Check, AlertCircle, Loader2 } from 'lucide-react'
-import { ClaimFileCategory } from '@claims/shared'
+import { ClaimFileCategory, ClaimFileCategoryLabel } from '@claims/shared'
 import type { PolicyFileCategory } from '@claims/shared'
 import { cn } from '@/lib/utils'
-
-// Category labels for Claims
-const ClaimFileCategoryLabel: Record<ClaimFileCategory, string> = {
-  RECEIPT: 'Recibo',
-  PRESCRIPTION: 'Receta médica',
-  LAB_REPORT: 'Resultado de laboratorio',
-  DISCHARGE_SUMMARY: 'Resumen de egreso',
-  AUTHORIZATION: 'Autorización',
-  OTHER: 'Otro',
-}
-
-// Category labels for Policies
-const PolicyFileCategoryLabel: Record<PolicyFileCategory, string> = {
-  CONTRACT: 'Contrato',
-  AMENDMENT: 'Enmienda',
-  CERTIFICATE: 'Certificado',
-  TERMS_CONDITIONS: 'Términos y condiciones',
-  OTHER: 'Otro',
-}
 
 const FILE_CATEGORIES = Object.values(ClaimFileCategory).map((value) => ({
   value,
@@ -41,8 +22,6 @@ export interface UploadingFile<T extends FileCategory = ClaimFileCategory> {
   storageKey?: string
   error?: string
 }
-
-export { ClaimFileCategoryLabel, PolicyFileCategoryLabel }
 
 export interface FileListProps {
   files: UploadingFile[]

@@ -10,6 +10,7 @@ export {
   SidebarFooter,
   SidebarNav,
   SidebarNavItem,
+  SidebarNavItemAI,
   SidebarCollapseButton,
   SidebarMobileHeader,
   SidebarMobileTrigger,

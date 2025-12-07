@@ -11,6 +11,7 @@ import {
   SidebarContent,
   SidebarNav,
   SidebarNavItem,
+  SidebarNavItemAI,
   SidebarFooter,
   SidebarMobileHeader,
   SidebarMobileTrigger,
@@ -24,6 +25,13 @@ import {
   ScrollText,
   UserCheck,
   Building2,
+  Library,
+  Sparkles,
+  Shield,
+  MessageSquareMore,
+  FileText,
+  Briefcase,
+  Handshake,
 } from 'lucide-react'
 
 export const Route = createFileRoute('/_authenticated')({
@@ -42,7 +50,7 @@ function AuthenticatedLayout() {
   }
 
   if (!session) {
-    return <Navigate to="/login" search={{ redirect: window.location.pathname }} />
+    return <Navigate to="/login" replace search={{ redirect: window.location.pathname }} />
   }
 
   const navItems = (
@@ -64,6 +72,27 @@ function AuthenticatedLayout() {
       </SidebarNavItem>
       <SidebarNavItem to="/clients" icon={Building2}>
         Clientes
+      </SidebarNavItem>
+      <SidebarNavItem to="/insurers" icon={Shield}>
+        Aseguradoras
+      </SidebarNavItem>
+      <SidebarNavItem to="/invoices" icon={FileText}>
+        Facturas
+      </SidebarNavItem>
+      <SidebarNavItem to="/tickets" icon={MessageSquareMore}>
+        Centro de Resolución
+      </SidebarNavItem>
+      <SidebarNavItem to="/library" icon={Library}>
+        Biblioteca
+      </SidebarNavItem>
+      <SidebarNavItemAI to="/capstone-ai" icon={Sparkles}>
+        CapstoneAI
+      </SidebarNavItemAI>
+      <SidebarNavItem to="/employees" icon={Briefcase}>
+        Empleados
+      </SidebarNavItem>
+      <SidebarNavItem to="/agents" icon={Handshake}>
+        Agentes
       </SidebarNavItem>
     </>
   )

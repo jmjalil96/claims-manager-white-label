@@ -5,6 +5,7 @@ import { affiliatesRouter } from '../features/affiliates/index.js'
 import { claimsRouter } from '../features/claims/index.js'
 import { policiesRouter } from '../features/policies/index.js'
 import { clientsRouter } from '../features/clients/index.js'
+import { insurersRouter } from '../features/insurers/index.js'
 
 const router = Router()
 
@@ -13,6 +14,7 @@ router.use('/api/affiliates', affiliatesRouter)
 router.use('/api/claims', claimsRouter)
 router.use('/api/policies', policiesRouter)
 router.use('/api/clients', clientsRouter)
+router.use('/api/insurers', insurersRouter)
 
 // Health check with DB status
 router.get('/health', async (_req, res) => {

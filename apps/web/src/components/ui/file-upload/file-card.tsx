@@ -1,7 +1,8 @@
 import { FileText, Image, Download, Trash2, Loader2 } from 'lucide-react'
 import type { ClaimFileDto, PolicyFileDto, ClaimFileCategory, PolicyFileCategory } from '@claims/shared'
+import { ClaimFileCategoryLabel, PolicyFileCategoryLabel } from '@claims/shared'
 import { cn } from '@/lib/utils'
-import { ClaimFileCategoryLabel, PolicyFileCategoryLabel, type FileCategory } from './file-list'
+import type { FileCategory } from './file-list'
 
 // Generic file type that works for both Claim and Policy files
 export type GenericFileDto = {

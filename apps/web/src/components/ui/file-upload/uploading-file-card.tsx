@@ -1,8 +1,7 @@
 import { FileText, Loader2, AlertCircle, X, Upload } from 'lucide-react'
-import { ClaimFileCategory, PolicyFileCategory } from '@claims/shared'
+import { ClaimFileCategory, PolicyFileCategory, ClaimFileCategoryLabel, PolicyFileCategoryLabel } from '@claims/shared'
 import { cn } from '@/lib/utils'
 import type { UploadingFile, FileCategory } from './file-list'
-import { ClaimFileCategoryLabel, PolicyFileCategoryLabel } from './file-list'
 
 // Build category options dynamically based on category type
 const CLAIM_FILE_CATEGORIES = Object.values(ClaimFileCategory).map((value) => ({
