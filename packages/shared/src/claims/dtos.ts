@@ -2,7 +2,7 @@
  * Claims module DTOs - shared between API and web
  */
 
-import type { ClaimStatus, CareType, AffiliateType, ClaimFileCategory, PolicyStatus } from '../enums/index.js'
+import type { ClaimStatus, CareType, ClaimFileCategory, PolicyStatus } from '../enums/index.js'
 import type { PaginationMeta } from '../common/pagination.js'
 
 // =============================================================================
@@ -99,7 +99,6 @@ export interface AffiliateDto {
   lastName: string
   email: string | null
   documentNumber: string | null
-  affiliateType: AffiliateType
 }
 
 export interface GetAvailableAffiliatesResponse {
@@ -112,7 +111,6 @@ export interface PatientDto {
   lastName: string
   email: string | null
   documentNumber: string | null
-  affiliateType: AffiliateType
   isDependent: boolean
 }
 

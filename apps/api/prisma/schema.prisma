@@ -131,7 +131,6 @@ model Client {
 
   userAccess     UserClient[]
   policies       Policy[]
-  families       Family[]
   affiliates     Affiliate[]
   claims         Claim[]
   invoices       Invoice[]
@@ -203,7 +202,7 @@ model Policy {
   cancellationReason String?
   cancelledAt        DateTime?
 
-  affiliates      PolicyAffiliate[]
+  enrollments     PolicyEnrollment[]
   claims          Claim[]
   invoicePolicies InvoicePolicy[]
   files           PolicyFile[]
@@ -218,93 +217,89 @@ model Policy {
 }
 
 // ============================================================================
-// FAMILY & AFFILIATES
+// AFFILIATES & ENROLLMENTS
 // ============================================================================
-
-model Family {
-  id String @id @default(cuid())
-
-  clientId String
-  client   Client @relation(fields: [clientId], references: [id])
-
-  isActive Boolean @default(true)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  affiliates Affiliate[]
-
-  @@index([clientId])
-  @@index([isActive])
-}
 
 model Affiliate {
   id String @id @default(cuid())
 
-  firstName   String
-  lastName    String
-  email       String?
-  phone       String?
-  dateOfBirth DateTime?
-
+  // Identity
+  firstName      String
+  lastName       String
   documentType   String?
   documentNumber String?
 
-  affiliateType AffiliateType @default(OWNER)
-  coverageType  CoverageType?
+  // Contact
+  email String?
+  phone String?
 
-  tierChangedAt        DateTime?
-  previousCoverageType CoverageType?
+  // Demographics
+  dateOfBirth   DateTime?
+  gender        Gender?
+  maritalStatus MaritalStatus?
 
-  familyId String?
-  family   Family? @relation(fields: [familyId], references: [id])
-
+  // Dependent relationship (global, single source of truth)
   primaryAffiliateId String?
   primaryAffiliate   Affiliate?  @relation("AffiliateDependents", fields: [primaryAffiliateId], references: [id], onDelete: SetNull)
   dependents         Affiliate[] @relation("AffiliateDependents")
 
+  relationship DependentRelationship? // Only for dependents
+
+  // Ownership
   clientId String
   client   Client @relation(fields: [clientId], references: [id])
 
+  // Optional portal access
   userId String? @unique
   user   User?   @relation(fields: [userId], references: [id])
 
-  isActive Boolean @default(true)
-
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  policies          PolicyAffiliate[]
-  claimsAsAffiliate Claim[]           @relation("ClaimAffiliate")
-  claimsAsPatient   Claim[]           @relation("ClaimPatient")
+  // Relations
+  enrollments       PolicyEnrollment[]
+  claimsAsAffiliate Claim[]            @relation("ClaimAffiliate")
+  claimsAsPatient   Claim[]            @relation("ClaimPatient")
   invitation        Invitation?
+  files             AffiliateFile[]
 
   @@index([clientId])
   @@index([userId])
-  @@index([familyId])
   @@index([primaryAffiliateId])
   @@index([documentNumber])
   @@index([lastName, firstName])
   @@index([isActive])
-  @@index([affiliateType])
 }
 
-model PolicyAffiliate {
+model PolicyEnrollment {
+  id String @id @default(cuid())
+
   policyId    String
   policy      Policy    @relation(fields: [policyId], references: [id], onDelete: Cascade)
   affiliateId String
   affiliate   Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
 
-  addedAt   DateTime  @default(now())
-  removedAt DateTime?
-  isActive  Boolean   @default(true)
+  // Coverage tier
+  coverageType CoverageType?
 
-  @@id([policyId, affiliateId])
+  // Lifecycle (endDate = soft delete)
+  startDate   DateTime               @default(now())
+  endDate     DateTime?
+  startReason EnrollmentStartReason?
+  endReason   EnrollmentEndReason?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  files EnrollmentFile[]
+
+  @@unique([policyId, affiliateId, startDate])
   @@index([policyId])
   @@index([affiliateId])
-  @@index([isActive])
-  @@index([policyId, addedAt])
-  @@index([policyId, removedAt])
+  @@index([coverageType])
+  @@index([startDate])
+  @@index([endDate])
 }
 
 model PolicyExpiration {
@@ -644,13 +639,15 @@ model File {
 
   deletedAt DateTime?
 
-  claimFile   ClaimFile?
-  invoiceFile InvoiceFile?
-  ticketFile  TicketFile?
-  policyFile  PolicyFile?
-  insurerFile InsurerFile?
-  clientFile  ClientFile?
-  document    Document?
+  claimFile      ClaimFile?
+  invoiceFile    InvoiceFile?
+  ticketFile     TicketFile?
+  policyFile     PolicyFile?
+  insurerFile    InsurerFile?
+  clientFile     ClientFile?
+  document       Document?
+  affiliateFile  AffiliateFile?
+  enrollmentFile EnrollmentFile?
 
   @@index([entityType, entityId])
   @@index([entityType, clientId])
@@ -765,6 +762,42 @@ model ClientFile {
   createdAt DateTime @default(now())
 
   @@index([clientId])
+  @@index([category])
+}
+
+model AffiliateFile {
+  id String @id @default(cuid())
+
+  fileId      String    @unique
+  file        File      @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  affiliateId String
+  affiliate   Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+
+  category     AffiliateFileCategory?
+  description  String?
+  displayOrder Int                    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([affiliateId])
+  @@index([category])
+}
+
+model EnrollmentFile {
+  id String @id @default(cuid())
+
+  fileId       String           @unique
+  file         File             @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  enrollmentId String
+  enrollment   PolicyEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  category     EnrollmentFileCategory?
+  description  String?
+  displayOrder Int                     @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([enrollmentId])
   @@index([category])
 }
 
@@ -927,11 +960,6 @@ enum PolicyType {
   DISABILITY
 }
 
-enum AffiliateType {
-  OWNER
-  DEPENDENT
-}
-
 enum ClaimStatus {
   DRAFT
   PENDING_INFO
@@ -1005,6 +1033,8 @@ enum FileEntityType {
   INSURER
   CLIENT
   DOCUMENT
+  AFFILIATE
+  ENROLLMENT
 }
 
 enum ClaimFileCategory {
@@ -1046,3 +1076,64 @@ enum ClientFileCategory {
   OTHER
 }
 
+enum AffiliateFileCategory {
+  ID_DOCUMENT
+  BIRTH_CERTIFICATE
+  PHOTO
+  OTHER
+}
+
+enum EnrollmentFileCategory {
+  ENROLLMENT_FORM
+  PROOF_OF_RELATIONSHIP
+  MARRIAGE_CERTIFICATE
+  BIRTH_CERTIFICATE
+  ADOPTION_PAPERS
+  OTHER
+}
+
+enum EnrollmentStartReason {
+  INITIAL_ENROLLMENT
+  ADDED_AS_DEPENDENT
+  REHIRED
+  POLICY_RENEWAL
+  TRANSFER
+  CHANGE_OF_COVERAGE
+  OTHER
+}
+
+enum EnrollmentEndReason {
+  LEFT_COMPANY
+  TERMINATED
+  REMOVED_BY_OWNER
+  DEPENDENT_AGED_OUT
+  POLICY_CANCELLED
+  POLICY_EXPIRED
+  DEATH
+  VOLUNTARY_WITHDRAWAL
+  CHANGE_OF_COVERAGE
+  OTHER
+}
+
+enum DependentRelationship {
+  SPOUSE
+  CHILD
+  PARENT
+  DOMESTIC_PARTNER
+  SIBLING
+  OTHER
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum MaritalStatus {
+  SINGLE
+  MARRIED
+  DIVORCED
+  WIDOWED
+  DOMESTIC_PARTNER
+}

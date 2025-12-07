@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw'
-import { ClaimStatus, CareType, AffiliateType } from '@claims/shared'
+import { ClaimStatus, CareType } from '@claims/shared'
 import type {
   ListClaimsResponse,
   ClaimListItemDto,
@@ -56,7 +56,6 @@ export const mockAffiliates = [
     lastName: 'Doe',
     email: 'john@example.com',
     documentNumber: '12345678',
-    affiliateType: AffiliateType.OWNER,
   },
   {
     id: 'claffiliate0000000002',
@@ -64,7 +63,6 @@ export const mockAffiliates = [
     lastName: 'Smith',
     email: 'jane@example.com',
     documentNumber: '87654321',
-    affiliateType: AffiliateType.OWNER,
   },
 ]
 
@@ -75,7 +73,6 @@ export const mockPatients = [
     lastName: 'Doe',
     email: 'john@example.com',
     documentNumber: '12345678',
-    affiliateType: AffiliateType.OWNER,
     isDependent: false,
   },
   {
@@ -84,7 +81,6 @@ export const mockPatients = [
     lastName: 'Doe',
     email: null,
     documentNumber: '11111111',
-    affiliateType: AffiliateType.DEPENDENT,
     isDependent: true,
   },
 ]

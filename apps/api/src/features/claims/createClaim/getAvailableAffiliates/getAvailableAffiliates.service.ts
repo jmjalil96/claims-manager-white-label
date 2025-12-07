@@ -76,7 +76,6 @@ export async function getAvailableAffiliates(
         lastName: true,
         email: true,
         documentNumber: true,
-        affiliateType: true,
       },
     })
 
@@ -89,12 +88,12 @@ export async function getAvailableAffiliates(
     return [userAffiliate]
   }
 
-  // 4. For other roles: return all active OWNER affiliates
+  // 4. For other roles: return all active OWNER affiliates (those without primaryAffiliateId)
   const affiliates = await db.affiliate.findMany({
     where: {
       clientId,
       isActive: true,
-      affiliateType: 'OWNER',
+      primaryAffiliateId: null, // Owners have no primary affiliate
     },
     select: {
       id: true,
@@ -102,7 +101,6 @@ export async function getAvailableAffiliates(
       lastName: true,
       email: true,
       documentNumber: true,
-      affiliateType: true,
     },
     orderBy: [{ lastName: 'asc' }, { firstName: 'asc' }],
   })

@@ -4,12 +4,14 @@
 
 import { db } from '../lib/db.js'
 import type {
-  AffiliateType,
   ClaimStatus,
   Prisma,
   AuditLog,
   ClaimInvoice,
   ClaimFileCategory,
+  Gender,
+  MaritalStatus,
+  DependentRelationship,
 } from '@prisma/client'
 
 // Random suffix for unique values
@@ -44,8 +46,10 @@ export async function createUserClient(userId: string, clientId: string, isActiv
 export async function createAffiliate(
   clientId: string,
   opts: {
-    type?: AffiliateType
     primaryAffiliateId?: string
+    relationship?: DependentRelationship
+    gender?: Gender
+    maritalStatus?: MaritalStatus
     userId?: string
     isActive?: boolean
   } = {}
@@ -56,8 +60,10 @@ export async function createAffiliate(
       lastName: `Last-${uid()}`,
       email: `aff-${uid()}@test.com`,
       documentNumber: `DOC-${uid()}`,
-      affiliateType: opts.type ?? 'OWNER',
       primaryAffiliateId: opts.primaryAffiliateId ?? null,
+      relationship: opts.relationship ?? null,
+      gender: opts.gender ?? null,
+      maritalStatus: opts.maritalStatus ?? null,
       clientId,
       userId: opts.userId ?? null,
       isActive: opts.isActive ?? true,

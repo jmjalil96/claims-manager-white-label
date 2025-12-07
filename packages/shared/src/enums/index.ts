@@ -28,14 +28,8 @@ export const CareType = {
 export type CareType = (typeof CareType)[keyof typeof CareType]
 
 // =============================================================================
-// AFFILIATES
+// AFFILIATES & ENROLLMENTS
 // =============================================================================
-
-export const AffiliateType = {
-  OWNER: 'OWNER',
-  DEPENDENT: 'DEPENDENT',
-} as const
-export type AffiliateType = (typeof AffiliateType)[keyof typeof AffiliateType]
 
 export const CoverageType = {
   T: 'T',
@@ -43,6 +37,57 @@ export const CoverageType = {
   TPLUSF: 'TPLUSF',
 } as const
 export type CoverageType = (typeof CoverageType)[keyof typeof CoverageType]
+
+export const DependentRelationship = {
+  SPOUSE: 'SPOUSE',
+  CHILD: 'CHILD',
+  PARENT: 'PARENT',
+  DOMESTIC_PARTNER: 'DOMESTIC_PARTNER',
+  SIBLING: 'SIBLING',
+  OTHER: 'OTHER',
+} as const
+export type DependentRelationship = (typeof DependentRelationship)[keyof typeof DependentRelationship]
+
+export const Gender = {
+  MALE: 'MALE',
+  FEMALE: 'FEMALE',
+  OTHER: 'OTHER',
+} as const
+export type Gender = (typeof Gender)[keyof typeof Gender]
+
+export const MaritalStatus = {
+  SINGLE: 'SINGLE',
+  MARRIED: 'MARRIED',
+  DIVORCED: 'DIVORCED',
+  WIDOWED: 'WIDOWED',
+  DOMESTIC_PARTNER: 'DOMESTIC_PARTNER',
+} as const
+export type MaritalStatus = (typeof MaritalStatus)[keyof typeof MaritalStatus]
+
+export const EnrollmentStartReason = {
+  INITIAL_ENROLLMENT: 'INITIAL_ENROLLMENT',
+  ADDED_AS_DEPENDENT: 'ADDED_AS_DEPENDENT',
+  REHIRED: 'REHIRED',
+  POLICY_RENEWAL: 'POLICY_RENEWAL',
+  TRANSFER: 'TRANSFER',
+  CHANGE_OF_COVERAGE: 'CHANGE_OF_COVERAGE',
+  OTHER: 'OTHER',
+} as const
+export type EnrollmentStartReason = (typeof EnrollmentStartReason)[keyof typeof EnrollmentStartReason]
+
+export const EnrollmentEndReason = {
+  LEFT_COMPANY: 'LEFT_COMPANY',
+  TERMINATED: 'TERMINATED',
+  REMOVED_BY_OWNER: 'REMOVED_BY_OWNER',
+  DEPENDENT_AGED_OUT: 'DEPENDENT_AGED_OUT',
+  POLICY_CANCELLED: 'POLICY_CANCELLED',
+  POLICY_EXPIRED: 'POLICY_EXPIRED',
+  DEATH: 'DEATH',
+  VOLUNTARY_WITHDRAWAL: 'VOLUNTARY_WITHDRAWAL',
+  CHANGE_OF_COVERAGE: 'CHANGE_OF_COVERAGE',
+  OTHER: 'OTHER',
+} as const
+export type EnrollmentEndReason = (typeof EnrollmentEndReason)[keyof typeof EnrollmentEndReason]
 
 // =============================================================================
 // POLICIES
@@ -147,6 +192,8 @@ export const FileEntityType = {
   INSURER: 'INSURER',
   CLIENT: 'CLIENT',
   DOCUMENT: 'DOCUMENT',
+  AFFILIATE: 'AFFILIATE',
+  ENROLLMENT: 'ENROLLMENT',
 } as const
 export type FileEntityType = (typeof FileEntityType)[keyof typeof FileEntityType]
 
@@ -194,6 +241,23 @@ export const ClientFileCategory = {
 } as const
 export type ClientFileCategory = (typeof ClientFileCategory)[keyof typeof ClientFileCategory]
 
+export const AffiliateFileCategory = {
+  ID_DOCUMENT: 'ID_DOCUMENT',
+  BIRTH_CERTIFICATE: 'BIRTH_CERTIFICATE',
+  PHOTO: 'PHOTO',
+  OTHER: 'OTHER',
+} as const
+export type AffiliateFileCategory = (typeof AffiliateFileCategory)[keyof typeof AffiliateFileCategory]
+
+export const EnrollmentFileCategory = {
+  ENROLLMENT_FORM: 'ENROLLMENT_FORM',
+  PROOF_OF_RELATIONSHIP: 'PROOF_OF_RELATIONSHIP',
+  MARRIAGE_CERTIFICATE: 'MARRIAGE_CERTIFICATE',
+  BIRTH_CERTIFICATE: 'BIRTH_CERTIFICATE',
+  ADOPTION_PAPERS: 'ADOPTION_PAPERS',
+  OTHER: 'OTHER',
+} as const
+export type EnrollmentFileCategory = (typeof EnrollmentFileCategory)[keyof typeof EnrollmentFileCategory]
 
 // =============================================================================
 // LABELS (Spanish UI strings)

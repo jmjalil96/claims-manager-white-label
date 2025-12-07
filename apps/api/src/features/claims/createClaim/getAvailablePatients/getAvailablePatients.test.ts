@@ -18,8 +18,8 @@ describe('Get Available Patients', () => {
     const admin = await createUser('claims_admin')
     const client = await createClient()
     const affiliate = await createAffiliate(client.id)
-    await createAffiliate(client.id, { type: 'DEPENDENT', primaryAffiliateId: affiliate.id })
-    await createAffiliate(client.id, { type: 'DEPENDENT', primaryAffiliateId: affiliate.id })
+    await createAffiliate(client.id, { primaryAffiliateId: affiliate.id })
+    await createAffiliate(client.id, { primaryAffiliateId: affiliate.id })
 
     const patients = await getAvailablePatients(affiliate.id, authUser(admin))
 
@@ -33,12 +33,10 @@ describe('Get Available Patients', () => {
     const client = await createClient()
     const affiliate = await createAffiliate(client.id)
     await createAffiliate(client.id, {
-      type: 'DEPENDENT',
       primaryAffiliateId: affiliate.id,
       isActive: true,
     })
     await createAffiliate(client.id, {
-      type: 'DEPENDENT',
       primaryAffiliateId: affiliate.id,
       isActive: false,
     })
@@ -56,7 +54,6 @@ describe('Get Available Patients Authorization', () => {
       const client = await createClient()
       const affiliate = await createAffiliate(client.id, { userId: user.id })
       const dep = await createAffiliate(client.id, {
-        type: 'DEPENDENT',
         primaryAffiliateId: affiliate.id,
       })
       await createUserClient(user.id, client.id)
@@ -87,7 +84,6 @@ describe('Get Available Patients Authorization', () => {
       const client = await createClient()
       const affiliate = await createAffiliate(client.id)
       const dep = await createAffiliate(client.id, {
-        type: 'DEPENDENT',
         primaryAffiliateId: affiliate.id,
       })
       await createUserClient(user.id, client.id)

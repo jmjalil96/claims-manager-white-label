@@ -40,7 +40,6 @@ export async function getAvailablePatients(
       lastName: true,
       email: true,
       documentNumber: true,
-      affiliateType: true,
       clientId: true,
       userId: true,
       isActive: true,
@@ -99,7 +98,6 @@ export async function getAvailablePatients(
       lastName: true,
       email: true,
       documentNumber: true,
-      affiliateType: true,
     },
     orderBy: [{ lastName: 'asc' }, { firstName: 'asc' }],
   })
@@ -112,7 +110,6 @@ export async function getAvailablePatients(
       lastName: affiliate.lastName,
       email: affiliate.email,
       documentNumber: affiliate.documentNumber,
-      affiliateType: affiliate.affiliateType,
       isDependent: false,
     },
     ...dependents.map((dep) => ({

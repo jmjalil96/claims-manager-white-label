@@ -18,9 +18,9 @@ describe('Get Available Affiliates', () => {
     it('sees all OWNER affiliates (not dependents) for a client', async () => {
       const admin = await createUser('claims_admin')
       const client = await createClient()
-      const owner1 = await createAffiliate(client.id, { type: 'OWNER' })
-      const owner2 = await createAffiliate(client.id, { type: 'OWNER' })
-      await createAffiliate(client.id, { type: 'DEPENDENT', primaryAffiliateId: owner1.id })
+      const owner1 = await createAffiliate(client.id) // No primaryAffiliateId = owner
+      const owner2 = await createAffiliate(client.id) // No primaryAffiliateId = owner
+      await createAffiliate(client.id, { primaryAffiliateId: owner1.id }) // Has primaryAffiliateId = dependent
 
       const affiliates = await getAvailableAffiliates(client.id, authUser(admin))
 

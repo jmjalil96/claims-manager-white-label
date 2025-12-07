@@ -31,12 +31,6 @@ const ids = {
   policyGlobal1: cuid(),
   policyGlobal2: cuid(),
 
-  // Families
-  familyAcme1: cuid(),
-  familyAcme2: cuid(),
-  familyGlobal1: cuid(),
-  familyGlobal2: cuid(),
-
   // Affiliates (Acme)
   affAcme1Owner: cuid(),
   affAcme1Dep1: cuid(),
@@ -66,9 +60,8 @@ async function main() {
   await db.claimReprocess.deleteMany()
   await db.claimInvoice.deleteMany()
   await db.claim.deleteMany()
-  await db.policyAffiliate.deleteMany()
+  await db.policyEnrollment.deleteMany()
   await db.affiliate.deleteMany()
-  await db.family.deleteMany()
   await db.policy.deleteMany()
   await db.insurer.deleteMany()
   await db.userClient.deleteMany()
@@ -271,20 +264,6 @@ async function main() {
   })
 
   // -------------------------------------------------------------------------
-  // FAMILIES
-  // -------------------------------------------------------------------------
-  console.log('👨‍👩‍👧‍👦 Creating families...')
-
-  await db.family.createMany({
-    data: [
-      { id: ids.familyAcme1, clientId: ids.clientAcme },
-      { id: ids.familyAcme2, clientId: ids.clientAcme },
-      { id: ids.familyGlobal1, clientId: ids.clientGlobal },
-      { id: ids.familyGlobal2, clientId: ids.clientGlobal },
-    ],
-  })
-
-  // -------------------------------------------------------------------------
   // AFFILIATES
   // -------------------------------------------------------------------------
   console.log('👥 Creating affiliates...')
@@ -300,10 +279,9 @@ async function main() {
       dateOfBirth: new Date('1985-03-15'),
       documentType: 'DPI',
       documentNumber: '1234567890101',
-      affiliateType: 'OWNER',
-      coverageType: 'TPLUSF',
+      gender: 'MALE',
+      maritalStatus: 'MARRIED',
       clientId: ids.clientAcme,
-      familyId: ids.familyAcme1,
     },
   })
 
@@ -318,10 +296,10 @@ async function main() {
         dateOfBirth: new Date('1987-07-22'),
         documentType: 'DPI',
         documentNumber: '1234567890102',
-        affiliateType: 'DEPENDENT',
-        coverageType: 'TPLUSF',
+        gender: 'FEMALE',
+        maritalStatus: 'MARRIED',
+        relationship: 'SPOUSE',
         clientId: ids.clientAcme,
-        familyId: ids.familyAcme1,
         primaryAffiliateId: ids.affAcme1Owner,
       },
       {
@@ -331,10 +309,9 @@ async function main() {
         dateOfBirth: new Date('2015-11-08'),
         documentType: 'MENOR',
         documentNumber: 'M-2015-001',
-        affiliateType: 'DEPENDENT',
-        coverageType: 'TPLUSF',
+        gender: 'FEMALE',
+        relationship: 'CHILD',
         clientId: ids.clientAcme,
-        familyId: ids.familyAcme1,
         primaryAffiliateId: ids.affAcme1Owner,
       },
     ],
@@ -351,10 +328,9 @@ async function main() {
       dateOfBirth: new Date('1980-01-20'),
       documentType: 'DPI',
       documentNumber: '2345678901201',
-      affiliateType: 'OWNER',
-      coverageType: 'T',
+      gender: 'MALE',
+      maritalStatus: 'MARRIED',
       clientId: ids.clientAcme,
-      familyId: ids.familyAcme2,
     },
   })
 
@@ -368,10 +344,10 @@ async function main() {
       dateOfBirth: new Date('1982-05-14'),
       documentType: 'DPI',
       documentNumber: '2345678901202',
-      affiliateType: 'DEPENDENT',
-      coverageType: 'T',
+      gender: 'FEMALE',
+      maritalStatus: 'MARRIED',
+      relationship: 'SPOUSE',
       clientId: ids.clientAcme,
-      familyId: ids.familyAcme2,
       primaryAffiliateId: ids.affAcme2Owner,
     },
   })
@@ -387,10 +363,9 @@ async function main() {
       dateOfBirth: new Date('1978-09-03'),
       documentType: 'DPI',
       documentNumber: '3456789012301',
-      affiliateType: 'OWNER',
-      coverageType: 'TPLUSF',
+      gender: 'MALE',
+      maritalStatus: 'MARRIED',
       clientId: ids.clientGlobal,
-      familyId: ids.familyGlobal1,
     },
   })
 
@@ -405,10 +380,10 @@ async function main() {
         dateOfBirth: new Date('1980-12-18'),
         documentType: 'DPI',
         documentNumber: '3456789012302',
-        affiliateType: 'DEPENDENT',
-        coverageType: 'TPLUSF',
+        gender: 'FEMALE',
+        maritalStatus: 'MARRIED',
+        relationship: 'SPOUSE',
         clientId: ids.clientGlobal,
-        familyId: ids.familyGlobal1,
         primaryAffiliateId: ids.affGlobal1Owner,
       },
       {
@@ -418,10 +393,9 @@ async function main() {
         dateOfBirth: new Date('2008-04-25'),
         documentType: 'MENOR',
         documentNumber: 'M-2008-001',
-        affiliateType: 'DEPENDENT',
-        coverageType: 'TPLUSF',
+        gender: 'MALE',
+        relationship: 'CHILD',
         clientId: ids.clientGlobal,
-        familyId: ids.familyGlobal1,
         primaryAffiliateId: ids.affGlobal1Owner,
       },
       {
@@ -431,10 +405,9 @@ async function main() {
         dateOfBirth: new Date('2012-08-10'),
         documentType: 'MENOR',
         documentNumber: 'M-2012-001',
-        affiliateType: 'DEPENDENT',
-        coverageType: 'TPLUSF',
+        gender: 'FEMALE',
+        relationship: 'CHILD',
         clientId: ids.clientGlobal,
-        familyId: ids.familyGlobal1,
         primaryAffiliateId: ids.affGlobal1Owner,
       },
     ],
@@ -451,10 +424,9 @@ async function main() {
       dateOfBirth: new Date('1990-06-30'),
       documentType: 'DPI',
       documentNumber: '4567890123401',
-      affiliateType: 'OWNER',
-      coverageType: 'TPLUS1',
+      gender: 'FEMALE',
+      maritalStatus: 'MARRIED',
       clientId: ids.clientGlobal,
-      familyId: ids.familyGlobal2,
     },
   })
 
@@ -469,10 +441,10 @@ async function main() {
         dateOfBirth: new Date('1988-02-14'),
         documentType: 'DPI',
         documentNumber: '4567890123402',
-        affiliateType: 'DEPENDENT',
-        coverageType: 'TPLUS1',
+        gender: 'MALE',
+        maritalStatus: 'MARRIED',
+        relationship: 'SPOUSE',
         clientId: ids.clientGlobal,
-        familyId: ids.familyGlobal2,
         primaryAffiliateId: ids.affGlobal2Owner,
       },
       {
@@ -482,37 +454,47 @@ async function main() {
         dateOfBirth: new Date('2018-01-05'),
         documentType: 'MENOR',
         documentNumber: 'M-2018-001',
-        affiliateType: 'DEPENDENT',
-        coverageType: 'TPLUS1',
+        gender: 'FEMALE',
+        relationship: 'CHILD',
         clientId: ids.clientGlobal,
-        familyId: ids.familyGlobal2,
         primaryAffiliateId: ids.affGlobal2Owner,
       },
     ],
   })
 
   // -------------------------------------------------------------------------
-  // POLICY AFFILIATES
+  // POLICY ENROLLMENTS (owners only)
   // -------------------------------------------------------------------------
-  console.log('🔗 Linking affiliates to policies...')
+  console.log('🔗 Creating policy enrollments...')
 
-  await db.policyAffiliate.createMany({
+  await db.policyEnrollment.createMany({
     data: [
-      // Acme affiliates to policies
-      { policyId: ids.policyAcme1, affiliateId: ids.affAcme1Owner },
-      { policyId: ids.policyAcme1, affiliateId: ids.affAcme1Dep1 },
-      { policyId: ids.policyAcme1, affiliateId: ids.affAcme1Dep2 },
-      { policyId: ids.policyAcme2, affiliateId: ids.affAcme2Owner },
-      { policyId: ids.policyAcme2, affiliateId: ids.affAcme2Dep1 },
-
-      // Global affiliates to policies
-      { policyId: ids.policyGlobal1, affiliateId: ids.affGlobal1Owner },
-      { policyId: ids.policyGlobal1, affiliateId: ids.affGlobal1Dep1 },
-      { policyId: ids.policyGlobal1, affiliateId: ids.affGlobal1Dep2 },
-      { policyId: ids.policyGlobal1, affiliateId: ids.affGlobal1Dep3 },
-      { policyId: ids.policyGlobal2, affiliateId: ids.affGlobal2Owner },
-      { policyId: ids.policyGlobal2, affiliateId: ids.affGlobal2Dep1 },
-      { policyId: ids.policyGlobal2, affiliateId: ids.affGlobal2Dep2 },
+      // Acme enrollments
+      {
+        policyId: ids.policyAcme1,
+        affiliateId: ids.affAcme1Owner,
+        coverageType: 'TPLUSF',
+        startReason: 'INITIAL_ENROLLMENT',
+      },
+      {
+        policyId: ids.policyAcme2,
+        affiliateId: ids.affAcme2Owner,
+        coverageType: 'T',
+        startReason: 'INITIAL_ENROLLMENT',
+      },
+      // Global enrollments
+      {
+        policyId: ids.policyGlobal1,
+        affiliateId: ids.affGlobal1Owner,
+        coverageType: 'TPLUSF',
+        startReason: 'INITIAL_ENROLLMENT',
+      },
+      {
+        policyId: ids.policyGlobal2,
+        affiliateId: ids.affGlobal2Owner,
+        coverageType: 'TPLUS1',
+        startReason: 'INITIAL_ENROLLMENT',
+      },
     ],
   })
 
@@ -892,9 +874,8 @@ async function main() {
     clients: await db.client.count(),
     insurers: await db.insurer.count(),
     policies: await db.policy.count(),
-    families: await db.family.count(),
     affiliates: await db.affiliate.count(),
-    policyAffiliates: await db.policyAffiliate.count(),
+    enrollments: await db.policyEnrollment.count(),
     claims: await db.claim.count(),
   }
 
@@ -904,9 +885,8 @@ async function main() {
   console.log(`   - Clients: ${counts.clients}`)
   console.log(`   - Insurers: ${counts.insurers}`)
   console.log(`   - Policies: ${counts.policies}`)
-  console.log(`   - Families: ${counts.families}`)
   console.log(`   - Affiliates: ${counts.affiliates}`)
-  console.log(`   - PolicyAffiliates: ${counts.policyAffiliates}`)
+  console.log(`   - Enrollments: ${counts.enrollments}`)
   console.log(`   - Claims: ${counts.claims}`)
   console.log('\n🔐 Login credentials:')
   console.log('   - admin@claims.local / password123')

@@ -103,7 +103,6 @@ describe('Create Claim Authorization', () => {
       const client = await createClient()
       const affiliate = await createAffiliate(client.id, { userId: user.id })
       const dependent = await createAffiliate(client.id, {
-        type: 'DEPENDENT',
         primaryAffiliateId: affiliate.id,
       })
       await createUserClient(user.id, client.id)
