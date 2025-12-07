@@ -259,10 +259,11 @@ model Affiliate {
 
   // Relations
   enrollments       PolicyEnrollment[]
-  claimsAsAffiliate Claim[]            @relation("ClaimAffiliate")
-  claimsAsPatient   Claim[]            @relation("ClaimPatient")
-  invitation        Invitation?
-  files             AffiliateFile[]
+  claimsAsAffiliate   Claim[]               @relation("ClaimAffiliate")
+  claimsAsPatient     Claim[]               @relation("ClaimPatient")
+  enrolledAsDependent EnrollmentDependent[] @relation("EnrolledAsDependent")
+  invitation          Invitation?
+  files               AffiliateFile[]
 
   @@index([clientId])
   @@index([userId])
@@ -292,7 +293,8 @@ model PolicyEnrollment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  files EnrollmentFile[]
+  enrolledDependents EnrollmentDependent[]
+  files              EnrollmentFile[]
 
   @@unique([policyId, affiliateId, startDate])
   @@index([policyId])
@@ -300,6 +302,25 @@ model PolicyEnrollment {
   @@index([coverageType])
   @@index([startDate])
   @@index([endDate])
+}
+
+model EnrollmentDependent {
+  id String @id @default(cuid())
+
+  enrollmentId String
+  enrollment   PolicyEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  dependentId String
+  dependent   Affiliate @relation("EnrolledAsDependent", fields: [dependentId], references: [id])
+
+  addedAt   DateTime  @default(now())
+  removedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@unique([enrollmentId, dependentId, addedAt])
+  @@index([enrollmentId])
+  @@index([dependentId])
 }
 
 model PolicyExpiration {

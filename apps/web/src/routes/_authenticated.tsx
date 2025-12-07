@@ -22,11 +22,8 @@ import {
   Folder,
   FilePlus,
   ScrollText,
+  UserCheck,
   Building2,
-  Users,
-  Stethoscope,
-  PieChart,
-  Settings,
 } from 'lucide-react'
 
 export const Route = createFileRoute('/_authenticated')({
@@ -62,20 +59,11 @@ function AuthenticatedLayout() {
       <SidebarNavItem to="/policies" icon={ScrollText}>
         Pólizas
       </SidebarNavItem>
+      <SidebarNavItem to="/affiliates" icon={UserCheck}>
+        Afiliados
+      </SidebarNavItem>
       <SidebarNavItem to="/clients" icon={Building2}>
         Clientes
-      </SidebarNavItem>
-      <SidebarNavItem to="/patients" icon={Users}>
-        Pacientes
-      </SidebarNavItem>
-      <SidebarNavItem to="/providers" icon={Stethoscope}>
-        Proveedores
-      </SidebarNavItem>
-      <SidebarNavItem to="/reports" icon={PieChart}>
-        Reportes
-      </SidebarNavItem>
-      <SidebarNavItem to="/settings" icon={Settings}>
-        Configuración
       </SidebarNavItem>
     </>
   )

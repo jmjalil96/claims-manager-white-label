@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { db } from '../lib/db.js'
 import { requireAuth } from '../middleware/auth.js'
+import { affiliatesRouter } from '../features/affiliates/index.js'
 import { claimsRouter } from '../features/claims/index.js'
 import { policiesRouter } from '../features/policies/index.js'
 import { clientsRouter } from '../features/clients/index.js'
@@ -8,6 +9,7 @@ import { clientsRouter } from '../features/clients/index.js'
 const router = Router()
 
 // Feature routers
+router.use('/api/affiliates', affiliatesRouter)
 router.use('/api/claims', claimsRouter)
 router.use('/api/policies', policiesRouter)
 router.use('/api/clients', clientsRouter)
